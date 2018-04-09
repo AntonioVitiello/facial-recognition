@@ -13,6 +13,8 @@ import com.wonderkiln.camerakit.CameraKitEventCallback;
 import com.wonderkiln.camerakit.CameraKitImage;
 import com.wonderkiln.camerakit.CameraView;
 
+import java.io.File;
+
 import timber.log.Timber;
 
 /**
@@ -33,31 +35,26 @@ public class PicturingFragment extends Fragment implements PictureScheduler.Subs
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 //        setRetainInstance(true);
-        mImageSaver = new ImageSaver(getContext());
+        initDaemons();
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_picturing, container, false);
-
-        init(rootView);
+        initComponents(rootView);
         return rootView;
     }
 
-    private void init(View rootView) {
+    private void initDaemons() {
+        // Start picture files cleaner daemon
+        mImageSaver = new ImageSaver(getContext());
+        File outputDir = mImageSaver.getOutputDir();
+        FileCleaner.getInstance().start(outputDir);
+    }
+
+    private void initComponents(View rootView) {
         mCameraView = rootView.findViewById(R.id.camera);
-/*
-        mCameraView.setFacing(CameraKit.Constants.FACING_FRONT);
-        mCameraView.setFlash(CameraKit.Constants.FLASH_OFF);
-        mCameraView.setCropOutput(true);
-        mCameraView.setPermissions(CameraKit.Constants.PERMISSIONS_PICTURE);
-        mCameraView.setFocus(CameraKit.Constants.FOCUS_OFF);
-        mCameraView.setJpegQuality(50);
-        mCameraView.setMethod(CameraKit.Constants.METHOD_STILL);
-        mCameraView.setPinchToZoom(false);
-        mCameraView.setZoom(1.0F);
-*/
     }
 
     @Override
@@ -65,8 +62,8 @@ public class PicturingFragment extends Fragment implements PictureScheduler.Subs
         super.onResume();
         try {
             mCameraView.start();
-            mCameraView.setVisibility(View.INVISIBLE);
             PictureScheduler.getInstance().start(this);
+            FileCleaner.getInstance().start();
         } catch (final Exception exc) {
             PictureScheduler.getInstance().stop(this);
             Timber.e("Error while starting capture image.", exc);
@@ -76,8 +73,8 @@ public class PicturingFragment extends Fragment implements PictureScheduler.Subs
     @Override
     public void onPause() {
         try {
-            mCameraView.setVisibility(View.GONE);
             mCameraView.stop();
+            FileCleaner.getInstance().stop();
         } catch (final Exception exc) {
             Timber.e("Error while stopping capture image.", exc);
         } finally {

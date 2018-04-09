@@ -62,14 +62,14 @@ public class PictureScheduler {
                         isStarted = mHandler.postDelayed(this, mDelay);
                     } else {
                         isStarted = false;
-                        Timber.d("Picture scheduler stopped.");
+                        Timber.d("Picture scheduler: stopped.");
                     }
                 } catch (NullPointerException exc) {
                     isStarted = false;
                     Timber.d("Picture scheduler: interrupted.");
                 } catch (Exception exc) {
                     isStarted = false;
-                    Timber.e("Picture scheduler error.", exc);
+                    Timber.e("Picture scheduler: error.", exc);
                 }
             }
         }, mDelay);

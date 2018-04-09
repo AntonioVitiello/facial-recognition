@@ -19,9 +19,11 @@ public class ImageSaver implements Runnable {
     private static final SimpleDateFormat mDateFormat = new SimpleDateFormat("yyMMdd_HHmmss");
     private final Context mContext;
     private byte[] mImage;
+    private final File mExternalCacheDir;
 
     public ImageSaver(Context context) {
         mContext = context;
+        mExternalCacheDir = mContext.getExternalCacheDir();
     }
 
     public void setImage(byte[] image) {
@@ -30,7 +32,11 @@ public class ImageSaver implements Runnable {
 
     private File getOutputFile() {
         String filename = mDateFormat.format(new Date()) + ".jpg";
-        return new File(mContext.getExternalCacheDir(), filename);
+        return new File(mExternalCacheDir, filename);
+    }
+
+    public File getOutputDir() {
+        return mExternalCacheDir;
     }
 
     @Override

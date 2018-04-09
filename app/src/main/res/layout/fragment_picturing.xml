@@ -4,7 +4,7 @@
     xmlns:camerakit="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:visibility="visible">
+    android:visibility="invisible">
 
     <com.wonderkiln.camerakit.CameraView
         android:id="@+id/camera"
@@ -18,7 +18,7 @@
         camerakit:ckCropOutput="true"
         camerakit:ckFlash="off"
         camerakit:ckFocus="off"
-        camerakit:ckJpegQuality="50"
+        camerakit:ckJpegQuality="30"
         camerakit:ckMethod="still"
         camerakit:ckPermissions="picture"
         camerakit:ckZoom="1.0" />
