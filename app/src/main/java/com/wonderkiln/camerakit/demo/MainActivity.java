@@ -29,8 +29,8 @@ import com.wonderkiln.camerakit.CameraView;
 import java.util.ArrayList;
 import java.util.List;
 
-import av.demo.camerakit.BuildConfig;
-import av.demo.camerakit.R;
+import av.demo.facereco.BuildConfig;
+import av.demo.facereco.R;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 

@@ -24,7 +24,7 @@ import com.wonderkiln.camerakit.OnCameraKitEvent;
 
 import java.io.File;
 
-import av.demo.camerakit.R;
+import av.demo.facereco.R;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnTouch;

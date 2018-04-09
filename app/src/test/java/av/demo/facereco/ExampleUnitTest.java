@@ -1,4 +1,4 @@
-package av.demo.camerakit;
+package av.demo.facereco;
 
 import org.junit.Test;
 

@@ -1,4 +1,4 @@
-package av.demo.camerakit;
+package av.demo.facereco;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

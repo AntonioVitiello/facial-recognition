@@ -1,7 +1,6 @@
-package av.demo.camerakit;
+package av.demo.facereco;
 
 import android.content.Context;
-import android.content.ContextWrapper;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -18,30 +17,28 @@ import timber.log.Timber;
 public class ImageSaver implements Runnable {
     private static final String LOG_TAG = "ImageSaver";
     private static final SimpleDateFormat mDateFormat = new SimpleDateFormat("yyMMdd_HHmmss");
-    private final byte[] mImage;
     private final Context mContext;
-    private final File mFile;
+    private byte[] mImage;
 
-    public ImageSaver(Context context, byte[] image) {
+    public ImageSaver(Context context) {
         mContext = context;
+    }
+
+    public void setImage(byte[] image) {
         mImage = image;
-        mFile = getOutputMediaFile((ContextWrapper) context);
     }
 
-    private File getOutputMediaFile(ContextWrapper context) {
+    private File getOutputFile() {
         String filename = mDateFormat.format(new Date()) + ".jpg";
-        File outputMediaFile = new File(context.getExternalCacheDir(), filename);
-        return outputMediaFile;
-    }
-
-    public File getPictureFile() {
-        return mFile;
+        return new File(mContext.getExternalCacheDir(), filename);
     }
 
     @Override
     public void run() {
         FileOutputStream output = null;
+        File mFile = null;
         try {
+            mFile = getOutputFile();
             output = new FileOutputStream(mFile);
             output.write(mImage);
             output.flush();

@@ -19,7 +19,7 @@ import android.widget.VideoView;
 
 import java.io.File;
 
-import av.demo.camerakit.R;
+import av.demo.facereco.R;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
