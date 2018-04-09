@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--interval delay between pictures in milliseconds-->
+    <integer name="picture_delay_millisec">5000</integer>
+</resources>
