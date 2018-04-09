@@ -1,25 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:camerakit="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:visibility="invisible">
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:visibility="visible">
 
     <com.wonderkiln.camerakit.CameraView
         android:id="@+id/camera"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="1dp"
+        android:layout_height="1dp"
         android:adjustViewBounds="true"
-        android:visibility="visible"
+        android:visibility="invisible"
         app:ckDoubleTapToToggleFacing="false"
         app:ckFacing="front"
         app:ckPinchToZoom="false"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         camerakit:ckCropOutput="true"
         camerakit:ckFlash="off"
         camerakit:ckFocus="off"
@@ -28,14 +23,10 @@
         camerakit:ckPermissions="picture"
         camerakit:ckZoom="1.0" />
 
-    <Button
-        android:id="@+id/scatto_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:text="Scatto"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        android:foreground="@android:color/white" />
 
-</android.support.constraint.ConstraintLayout>
+</FrameLayout>

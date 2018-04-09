@@ -47,13 +47,6 @@ public class PicturingFragment extends Fragment implements PictureScheduler.Subs
 
     private void init(View rootView) {
         mCameraView = rootView.findViewById(R.id.camera);
-        mScattoButton = rootView.findViewById(R.id.scatto_button);
-        mScattoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                captureImage();
-            }
-        });
 /*
         mCameraView.setFacing(CameraKit.Constants.FACING_FRONT);
         mCameraView.setFlash(CameraKit.Constants.FLASH_OFF);

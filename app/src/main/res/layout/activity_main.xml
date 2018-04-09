@@ -6,6 +6,15 @@
     android:layout_height="match_parent"
     tools:context="av.demo.facereco.MainActivity">
 
+    <!-- Display the static master list fragment -->
+    <fragment
+        android:name="av.demo.facereco.PicturingFragment"
+        android:id="@+id/picture_fragment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:layout="@layout/fragment_picturing" />
+
+
     <FrameLayout
         android:id="@+id/picturing_frame_layout"
         android:layout_width="wrap_content"
