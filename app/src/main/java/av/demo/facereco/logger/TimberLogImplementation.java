@@ -1,4 +1,4 @@
-package av.demo.facereco;
+package av.demo.facereco.logger;
 
 import timber.log.Timber;
 

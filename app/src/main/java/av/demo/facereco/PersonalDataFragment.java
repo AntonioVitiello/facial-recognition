@@ -14,6 +14,9 @@ import android.view.ViewGroup;
 
 public class PersonalDataFragment extends Fragment {
 
+    public PersonalDataFragment(){
+    }
+
     public static PersonalDataFragment newInstance(){
         return new PersonalDataFragment();
     }

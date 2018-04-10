@@ -5,8 +5,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 
-import timber.log.Timber;
-
 public class PersonalDataActivity extends AppCompatActivity {
 
     private static final String PERSONAL_DATA_FRAGMENT_TAG = "personal_data_fragment";
@@ -38,6 +36,5 @@ public class PersonalDataActivity extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
         overridePendingTransition(R.anim.rotate_in, R.anim.rotate_out);
-        Timber.d("AAA onBackPressed: " );
     }
 }

@@ -1,4 +1,4 @@
-package av.demo.facereco;
+package av.demo.facereco.files;
 
 import android.content.Context;
 
@@ -15,7 +15,6 @@ import timber.log.Timber;
  */
 
 public class ImageSaver implements Runnable {
-    private static final String LOG_TAG = "ImageSaver";
     private static final SimpleDateFormat mDateFormat = new SimpleDateFormat("yyMMdd_HHmmss");
     private final Context mContext;
     private byte[] mImage;
@@ -48,15 +47,15 @@ public class ImageSaver implements Runnable {
             output = new FileOutputStream(mFile);
             output.write(mImage);
             output.flush();
-        } catch (Exception e) {
-            Timber.e("Error while saving image: " + mFile.toString(), e);
+        } catch (Exception exc) {
+            Timber.e(exc, "Error while saving image: " + mFile.toString());
         } finally {
             if (output != null) {
                 try {
                     output.close();
                     Timber.d("Image file saved: " + mFile.toString());
-                } catch (IOException e) {
-                    Timber.e("Error while closing image output stream: " + mFile.toString(), e);
+                } catch (IOException exc) {
+                    Timber.e(exc, "Error while closing image output stream: " + mFile.toString());
                 }
             }
         }

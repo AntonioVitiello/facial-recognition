@@ -15,27 +15,25 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
-        <activity android:name="com.wonderkiln.camerakit.demo.MainActivity">
-        </activity>
-        <activity android:name="com.wonderkiln.camerakit.demo.PreviewActivity">
-        </activity>
-
+        <activity android:name="com.wonderkiln.camerakit.demo.MainActivity"></activity>
+        <activity android:name="com.wonderkiln.camerakit.demo.PreviewActivity"></activity>
         <activity android:name=".LoginActivity">
+        </activity>
+        <activity
+            android:name=".PersonalDataActivity"
+            android:parentActivityName=".LoginActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".LoginActivity" />
+        </activity>
+        <activity
+            android:name=".GalleryActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".PersonalDataActivity"
-            android:parentActivityName=".LoginActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".LoginActivity" />
-        </activity>
-
     </application>
 
 </manifest>

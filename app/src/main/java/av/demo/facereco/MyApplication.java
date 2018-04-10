@@ -3,6 +3,8 @@ package av.demo.facereco;
 import android.app.Application;
 import android.support.annotation.NonNull;
 
+import av.demo.facereco.logger.TimberLogImplementation;
+
 /**
  * Created by Antonio Vitiello on 06/04/2018.
  */

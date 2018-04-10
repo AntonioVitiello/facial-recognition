@@ -7,7 +7,6 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
 import com.wonderkiln.camerakit.CameraKitEventCallback;
 import com.wonderkiln.camerakit.CameraKitImage;
@@ -15,19 +14,24 @@ import com.wonderkiln.camerakit.CameraView;
 
 import java.io.File;
 
+import av.demo.facereco.files.ImageSaver;
+import av.demo.facereco.scheduler.FileCleanerScheduler;
+import av.demo.facereco.scheduler.PictureScheduler;
 import timber.log.Timber;
 
 /**
  * Created by Vitiello Antonio on 07/04/2018.
  */
 
-public class PicturingFragment extends Fragment implements PictureScheduler.Subscriber {
+public class GetPictureFragment extends Fragment implements PictureScheduler.Subscriber {
     private CameraView mCameraView;
-    private Button mScattoButton;
     private ImageSaver mImageSaver;
 
-    public static PicturingFragment newInstance() {
-        return new PicturingFragment();
+    public GetPictureFragment() {
+    }
+
+    public static GetPictureFragment newInstance() {
+        return new GetPictureFragment();
     }
 
     // this method is only called once for this fragment
@@ -50,7 +54,7 @@ public class PicturingFragment extends Fragment implements PictureScheduler.Subs
         // Start picture files cleaner daemon
         mImageSaver = new ImageSaver(getContext());
         File outputDir = mImageSaver.getOutputDir();
-        FileCleaner.getInstance().start(outputDir);
+        FileCleanerScheduler.getInstance().start(outputDir);
     }
 
     private void initComponents(View rootView) {
@@ -63,10 +67,10 @@ public class PicturingFragment extends Fragment implements PictureScheduler.Subs
         try {
             mCameraView.start();
             PictureScheduler.getInstance().start(this);
-            FileCleaner.getInstance().start();
+            FileCleanerScheduler.getInstance().start();
         } catch (final Exception exc) {
             PictureScheduler.getInstance().stop(this);
-            Timber.e("Error while starting capture image.", exc);
+            Timber.e(exc, "Error while starting capture image.");
         }
     }
 
@@ -74,9 +78,9 @@ public class PicturingFragment extends Fragment implements PictureScheduler.Subs
     public void onPause() {
         try {
             mCameraView.stop();
-            FileCleaner.getInstance().stop();
+            FileCleanerScheduler.getInstance().stop();
         } catch (final Exception exc) {
-            Timber.e("Error while stopping capture image.", exc);
+            Timber.e(exc, "Error while stopping capture image.");
         } finally {
             PictureScheduler.getInstance().stop(this);
             super.onPause();
@@ -90,7 +94,7 @@ public class PicturingFragment extends Fragment implements PictureScheduler.Subs
             mImageSaver.setImage(jpeg);
             new Thread(mImageSaver).run();
         } catch (Exception exc) {
-            Timber.e("Error while preparing image.", exc);
+            Timber.e(exc, "Error while preparing image.");
         }
     }
 
@@ -108,7 +112,7 @@ public class PicturingFragment extends Fragment implements PictureScheduler.Subs
                 }
             });
         } catch (Exception exc) {
-            Timber.e("Error while capturing image.", exc);
+            Timber.e(exc, "Error while capturing image.");
         }
     }
 
