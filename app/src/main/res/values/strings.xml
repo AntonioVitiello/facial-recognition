@@ -20,8 +20,36 @@
     <string name="error_invalid_password">This password is too short</string>
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
-    <string name="permission_rationale">"Contacts permissions are needed for providing email
-        completions."
-    </string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email completions."</string>
+
+    <!-- Strings related to PersonalData -->
+    <string name="login">LOGIN</string>
+    <string name="register">REGISTRATI</string>
+    <string name="terms_conditions">Termini e Condizioni</string>
+    <string name="name">Nome</string>
+    <string name="surname">Cognome</string>
+    <string name="email">Email</string>
+    <string name="phone">Cellulare</string>
+    <string name="choose">Scegli</string>
+    <string name="choose_nation">Seleziona la tua nazione</string>
+    <string name="promotional_code">Codice promozionale</string>
+    <string name="switch_privacy">Presto il consenso al trattamento dei dati</string>
+    <string name="switch_terms">Termini e condizioni</string>
+    <string name="cf">Codice fiscale</string>
+    <string name="birth_date">Data di nascita</string>
+    <string name="empty_field_error_msg">Il campo deve essere valorizzato</string>
+
+    <!--Spinner to Choose a country-->
+    <string name="country_prompt">Choose a country</string>
+    <string-array name="country_arrays">
+        <item>Italy</item>
+        <item>Malaysia</item>
+        <item>United States</item>
+        <item>Indonesia</item>
+        <item>France</item>
+        <item>Singapore</item>
+        <item>New Zealand</item>
+        <item>India</item>
+    </string-array>
 
 </resources>

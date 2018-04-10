@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:camerakit="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:visibility="invisible">
@@ -15,13 +14,14 @@
         app:ckDoubleTapToToggleFacing="false"
         app:ckFacing="front"
         app:ckPinchToZoom="false"
-        camerakit:ckCropOutput="true"
-        camerakit:ckFlash="off"
-        camerakit:ckFocus="off"
-        camerakit:ckJpegQuality="30"
-        camerakit:ckMethod="still"
-        camerakit:ckPermissions="picture"
-        camerakit:ckZoom="1.0" />
+        app:ckPermissions="picture"
+        app:ckCropOutput="false"
+        app:ckFlash="off"
+        app:ckFocus="off"
+        app:ckJpegQuality="30"
+        app:ckMethod="still"
+        app:ckVideoQuality="lowest"
+        app:ckZoom="1.0" />
 
     <View
         android:layout_width="match_parent"

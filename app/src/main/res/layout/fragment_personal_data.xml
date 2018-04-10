@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!--Name field-->
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/login_name_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_normal"
+            app:errorEnabled="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <EditText
+                android:id="@+id/login_name"
+                style="@style/DefaultEditText"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/name"
+                android:hint="@string/name"
+                android:imeOptions="actionNext"
+                android:inputType="text"
+                tools:text="Antonio" />
+        </android.support.design.widget.TextInputLayout>
+
+        <!--Surname field-->
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/login_surname_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_normal"
+            app:errorEnabled="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/login_name_layout">
+
+            <EditText
+                android:id="@+id/login_surname"
+                style="@style/DefaultEditText"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/surname"
+                android:hint="@string/surname"
+                android:imeOptions="actionNext"
+                android:inputType="text"
+                tools:text="Vitiello" />
+        </android.support.design.widget.TextInputLayout>
+
+        <!--Email field-->
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/login_email_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_normal"
+            app:errorEnabled="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/login_surname_layout">
+
+            <EditText
+                android:id="@+id/login_email"
+                style="@style/DefaultEditText"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/email"
+                android:hint="@string/email"
+                android:imeOptions="actionNext"
+                android:inputType="textEmailAddress"
+                tools:text="a.vitiello@reply.it" />
+        </android.support.design.widget.TextInputLayout>
+
+        <!--Phone field-->
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/login_phone_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_normal"
+            app:errorEnabled="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/login_email_layout">
+
+            <EditText
+                android:id="@+id/login_phone"
+                style="@style/DefaultEditText"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/phone"
+                android:hint="@string/phone"
+                android:imeOptions="actionNext"
+                android:inputType="phone"
+                tools:text="33327201148" />
+        </android.support.design.widget.TextInputLayout>
+
+        <!--Spinner Scelta Nazione-->
+        <android.support.v7.widget.AppCompatSpinner
+            android:id="@+id/nations_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/DefaultSpinner"
+            android:layout_margin="@dimen/margin_normal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/login_phone_layout"
+            android:entries="@array/country_arrays"
+            android:prompt="@string/country_prompt" />
+
+        <!--Promotional code field-->
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/login_promo_code_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_normal"
+            app:errorEnabled="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/nations_spinner">
+
+            <EditText
+                android:id="@+id/login_promo_code"
+                style="@style/DefaultEditText"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/promotional_code"
+                android:hint="@string/promotional_code"
+                android:imeOptions="actionDone"
+                android:inputType="text"
+                android:textSize="@dimen/text_normal"
+                tools:text="ABC12345678" />
+        </android.support.design.widget.TextInputLayout>
+
+        <!--Consenso al trattamento dei dati-->
+        <Switch
+            android:id="@+id/privacy_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_normal"
+            android:checked="true"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/login_promo_code_layout" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/margin_very_small"
+            android:layout_marginLeft="@dimen/margin_normal"
+            android:layout_marginStart="@dimen/margin_normal"
+            android:text="@string/switch_privacy"
+            android:textSize="@dimen/text_very_small"
+            app:layout_constraintBottom_toBottomOf="@id/privacy_switch"
+            app:layout_constraintStart_toEndOf="@+id/privacy_switch" />
+
+        <!--Termini e condizioni-->
+        <Switch
+            android:id="@+id/terms_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_normal"
+            android:checked="true"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/privacy_switch" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/margin_very_small"
+            android:layout_marginLeft="@dimen/margin_normal"
+            android:layout_marginStart="@dimen/margin_normal"
+            android:text="@string/switch_terms"
+            android:textSize="@dimen/text_very_small"
+            app:layout_constraintBottom_toBottomOf="@id/terms_switch"
+            app:layout_constraintStart_toEndOf="@+id/terms_switch" />
+
+    </android.support.constraint.ConstraintLayout>
+</ScrollView>
