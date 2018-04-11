@@ -10,11 +10,9 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
 import java.io.File;
-import java.io.FileFilter;
-import java.util.Arrays;
 
 import av.demo.facereco.GalleryFragment;
-import timber.log.Timber;
+import av.demo.facereco.files.Utils;
 
 /**
  * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
@@ -27,22 +25,7 @@ public class GalleryPagerAdapter extends FragmentPagerAdapter {
     public GalleryPagerAdapter(Context context, FragmentManager fm) {
         super(fm);
         mContext = context;
-        getPictureFiles();
-    }
-
-    private void getPictureFiles(){
-        try {
-            File externalCacheDir = mContext.getExternalCacheDir();
-            mPictureFiles = externalCacheDir.listFiles(new FileFilter() {
-                @Override
-                public boolean accept(File file) {
-                    return !file.isDirectory();
-                }
-            });
-        } catch (Exception exc) {
-            mPictureFiles = new File[0];
-            Timber.e(exc, "Error while reading picture dir: %s", Arrays.asList(mPictureFiles));
-        }
+        mPictureFiles = Utils.listPictureSortByModified(Utils.SORT_ORDER_DESCENDING);
     }
 
     @Override

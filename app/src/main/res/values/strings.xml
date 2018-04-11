@@ -57,4 +57,9 @@
     <string name="login_label">Login</string>
     <string name="personal_data_label">Profile</string>
 
+    <!--Picture file extension-->
+    <string name="image_extension">.jpg</string>
+
+    <string name="self_picture">Self picture</string>
+
 </resources>

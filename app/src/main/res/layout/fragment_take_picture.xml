@@ -18,9 +18,9 @@
         app:ckCropOutput="false"
         app:ckFlash="off"
         app:ckFocus="off"
-        app:ckJpegQuality="30"
+        app:ckJpegQuality="100"
         app:ckMethod="still"
-        app:ckVideoQuality="lowest"
+        app:ckVideoQuality="highest"
         app:ckZoom="1.0" />
 
     <View

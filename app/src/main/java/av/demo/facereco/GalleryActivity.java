@@ -9,9 +9,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.rohitarya.picasso.facedetection.transformation.core.PicassoFaceDetector;
-
 import av.demo.facereco.adapters.GalleryPagerAdapter;
+import av.demo.facereco.picasso.PicassoFaceDetector;
 import timber.log.Timber;
 
 public class GalleryActivity extends AppCompatActivity {
@@ -35,45 +34,12 @@ public class GalleryActivity extends AppCompatActivity {
         mViewPager.setAdapter(mPagerAdapter);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-
-/*
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-*/
-    }
-
-
-/*
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_gallery, menu);
-        return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-*/
-
-    @Override
-    protected void onPause() {
-        if(isFinishing()){
-            PicassoFaceDetector.releaseDetector();
-        }
-        super.onPause();
+    protected void onDestroy() {
+        PicassoFaceDetector.releaseDetector();
+        super.onDestroy();
     }
 
     @Override

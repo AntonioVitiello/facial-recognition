@@ -1,9 +1,6 @@
 package av.demo.facereco.files;
 
 import java.io.File;
-import java.io.FileFilter;
-import java.util.Arrays;
-import java.util.Comparator;
 
 import av.demo.facereco.MyApplication;
 import av.demo.facereco.R;
@@ -18,20 +15,10 @@ public class PictureDirCleaner {
         @Override
         public void run() {
             int filesRetainCount = MyApplication.getIntResource(R.integer.file_count_retain);
-            File parentDir = MyApplication.getmExternalCacheDir();
-            File[] files = parentDir.listFiles(new FileFilter() {
-                @Override
-                public boolean accept(File file) {
-                    return !file.isDirectory();
-                }
-            });
+            File[] files = Utils.listPictureFiles();
 
             if(files.length > filesRetainCount){
-                Arrays.sort(files, new Comparator<File>(){
-                    public int compare(File file1, File file2) {
-                        return Long.valueOf(file1.lastModified()).compareTo(file2.lastModified());
-                    }
-                });
+                files = Utils.sortByModified(files, Utils.SORT_ORDER_ASCENDING);
                 int filesToDeleteCount = files.length - filesRetainCount;
                 int filesDeletedCount = 0;
                 for (int i = 0; i < filesToDeleteCount; i++) {

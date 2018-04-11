@@ -1,5 +1,6 @@
 package av.demo.facereco;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -7,23 +8,24 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.rohitarya.picasso.facedetection.transformation.FaceCenterCrop;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+
+import av.demo.facereco.picasso.FaceCenterCrop;
 
 /**
  * Created by Antonio Vitiello on 10/04/2018.
  */
 
 public class GalleryFragment extends Fragment {
-    /**
-     * The fragment argument representing the section number for this
-     * fragment.
-     */
+    private static final FaceCenterCrop sFaceCenterCrop = new FaceCenterCrop(
+            MyApplication.getIntResource(R.integer.image_target_width),
+            MyApplication.getIntResource(R.integer.image_target_height));
     private static final String ARG_PICTURE_FILE = "arg_picture_file";
     private ImageView mPictureImageView;
     private File mPicture;
+    private Picasso mPicasso;
 
     public GalleryFragment() {
     }
@@ -41,6 +43,13 @@ public class GalleryFragment extends Fragment {
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mPicasso = Picasso.get();
+        mPicasso.setIndicatorsEnabled(true);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_gallery, container, false);
         initComponent(rootView);
@@ -55,11 +64,33 @@ public class GalleryFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        Picasso.with(getContext())
-                .load(mPicture)
-                .fit() // use fit() and centerInside() for making it memory efficient.
+        boolean isFaceCenterActivated = MyApplication.getBooleanResource(R.bool.face_center_activated);
+        if(isFaceCenterActivated){
+            loadPictureFaceCenter();
+        } else {
+            loadPicture();
+        }
+    }
+
+    private void loadPicture(){
+        //Width, Height in pixel
+        int targetWidth = MyApplication.getIntResource(R.integer.image_target_width);
+        int targetHeight = MyApplication.getIntResource(R.integer.image_target_height);
+        mPicasso.load(mPicture)
+                .resize(targetWidth, targetHeight)
                 .centerInside()
-                .transform(new FaceCenterCrop(100, 100)) //in pixels. You can also use FaceCenterCrop(width, height, unit) to provide width, height in DP.
                 .into(mPictureImageView);
     }
+
+    private void loadPictureFaceCenter(){
+        //Width, Height in pixel
+        int targetWidth = MyApplication.getIntResource(R.integer.image_target_width);
+        int targetHeight = MyApplication.getIntResource(R.integer.image_target_height);
+        mPicasso.load(mPicture)
+                .resize(targetWidth, targetHeight)
+                .centerInside()
+                .transform(sFaceCenterCrop)
+                .into(mPictureImageView);
+    }
+
 }

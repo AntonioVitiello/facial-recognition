@@ -13,7 +13,7 @@ import av.demo.facereco.logger.TimberLogImplementation;
 
 public class MyApplication extends Application {
     private static MyApplication sInstance;
-    private static File mExternalCacheDir;
+    private static File sPictureDir;
 
     @Override
     public void onCreate() {
@@ -23,7 +23,7 @@ public class MyApplication extends Application {
         // Timber initialization
         TimberLogImplementation.init(getStringResource(R.string.app_name));
 
-        mExternalCacheDir = getExternalCacheDir();
+        sPictureDir = getExternalCacheDir();
     }
 
     @NonNull
@@ -40,7 +40,11 @@ public class MyApplication extends Application {
         return sInstance.getResources().getInteger(resId);
     }
 
-    public static File getmExternalCacheDir() {
-        return mExternalCacheDir;
+    public static boolean getBooleanResource(int resId) {
+        return sInstance.getResources().getBoolean(resId);
+    }
+
+    public static File getPictureDir() {
+        return sPictureDir;
     }
 }

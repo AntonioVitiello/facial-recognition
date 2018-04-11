@@ -37,4 +37,7 @@
     <dimen name="heigth_ic_close">10dp</dimen>
     <dimen name="width_ic_close">10dp</dimen>
 
+    <dimen name="picture_width">480dp</dimen>
+    <dimen name="picture_height">640dp</dimen>
+
 </resources>

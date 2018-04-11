@@ -26,7 +26,7 @@ public class PictureSaver implements Runnable {
     }
 
     private File getOutputFile() {
-        File parentDir = MyApplication.getmExternalCacheDir();
+        File parentDir = MyApplication.getPictureDir();
         String filename = mDateFormat.format(new Date()) + ".jpg";
         return new File(parentDir, filename);
     }

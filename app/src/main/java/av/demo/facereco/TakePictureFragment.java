@@ -1,5 +1,6 @@
 package av.demo.facereco;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -64,7 +65,7 @@ public class TakePictureFragment extends Fragment implements Timer.Subscriber {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        final View rootView = inflater.inflate(R.layout.fragment_picturing, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_take_picture, container, false);
         initCamera(rootView);
         return rootView;
     }
@@ -127,6 +128,11 @@ public class TakePictureFragment extends Fragment implements Timer.Subscriber {
             @Override
             public void callback(CameraKitImage image) {
                 try {
+                    Bitmap bitmap = image.getBitmap();
+                    int width = bitmap.getWidth();
+//                    AAA
+                    bitmap = Bitmap.createScaledBitmap(bitmap, 120, 120, false);
+
                     byte[] jpeg = image.getJpeg();
                     mPictureSaver.setImage(jpeg);
                     new Thread(mPictureSaver).run();

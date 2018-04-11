@@ -12,7 +12,7 @@
         android:name="av.demo.facereco.TakePictureFragment"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:layout="@layout/fragment_picturing"
+        tools:layout="@layout/fragment_take_picture"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
