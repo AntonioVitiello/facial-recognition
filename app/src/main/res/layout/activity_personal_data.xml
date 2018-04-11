@@ -9,7 +9,7 @@
     <!-- Display the static master list fragment -->
     <fragment
         android:id="@+id/picture_fragment"
-        android:name="av.demo.facereco.GetPictureFragment"
+        android:name="av.demo.facereco.TakePictureFragment"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         tools:layout="@layout/fragment_picturing"

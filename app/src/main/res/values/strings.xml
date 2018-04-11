@@ -52,4 +52,9 @@
         <item>India</item>
     </string-array>
 
+    <!--Menu items-->
+    <string name="gallery_label">Gallery</string>
+    <string name="login_label">Login</string>
+    <string name="personal_data_label">Profile</string>
+
 </resources>

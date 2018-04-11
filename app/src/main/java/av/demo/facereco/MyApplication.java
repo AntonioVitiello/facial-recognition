@@ -3,6 +3,8 @@ package av.demo.facereco;
 import android.app.Application;
 import android.support.annotation.NonNull;
 
+import java.io.File;
+
 import av.demo.facereco.logger.TimberLogImplementation;
 
 /**
@@ -11,6 +13,7 @@ import av.demo.facereco.logger.TimberLogImplementation;
 
 public class MyApplication extends Application {
     private static MyApplication sInstance;
+    private static File mExternalCacheDir;
 
     @Override
     public void onCreate() {
@@ -19,6 +22,8 @@ public class MyApplication extends Application {
 
         // Timber initialization
         TimberLogImplementation.init(getStringResource(R.string.app_name));
+
+        mExternalCacheDir = getExternalCacheDir();
     }
 
     @NonNull
@@ -35,4 +40,7 @@ public class MyApplication extends Application {
         return sInstance.getResources().getInteger(resId);
     }
 
+    public static File getmExternalCacheDir() {
+        return mExternalCacheDir;
+    }
 }

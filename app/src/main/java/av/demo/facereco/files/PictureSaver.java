@@ -1,28 +1,24 @@
 package av.demo.facereco.files;
 
-import android.content.Context;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import av.demo.facereco.MyApplication;
 import timber.log.Timber;
 
 /**
  * Created by Antonio Vitiello on 05/04/2018.
  */
 
-public class ImageSaver implements Runnable {
+public class PictureSaver implements Runnable {
     private static final SimpleDateFormat mDateFormat = new SimpleDateFormat("yyMMdd_HHmmss");
-    private final Context mContext;
     private byte[] mImage;
-    private final File mExternalCacheDir;
 
-    public ImageSaver(Context context) {
-        mContext = context;
-        mExternalCacheDir = mContext.getExternalCacheDir();
+    public PictureSaver() {
+        // Do nothing
     }
 
     public void setImage(byte[] image) {
@@ -30,12 +26,9 @@ public class ImageSaver implements Runnable {
     }
 
     private File getOutputFile() {
+        File parentDir = MyApplication.getmExternalCacheDir();
         String filename = mDateFormat.format(new Date()) + ".jpg";
-        return new File(mExternalCacheDir, filename);
-    }
-
-    public File getOutputDir() {
-        return mExternalCacheDir;
+        return new File(parentDir, filename);
     }
 
     @Override

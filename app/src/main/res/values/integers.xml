@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--interval delay between pictures in milliseconds-->
-    <integer name="picture_delay_millisec">5000</integer>
+    <integer name="take_picture_delay_millisec">5000</integer>
 
     <!--interval delay between picture file cleaning in milliseconds-->
     <integer name="file_cleaner_delay_millisec">60000</integer>

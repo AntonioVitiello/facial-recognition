@@ -12,7 +12,7 @@ import timber.log.Timber;
 
 public class PictureScheduler {
     private static final PictureScheduler sInstance = new PictureScheduler();
-    final int mDelay = MyApplication.getIntResource(R.integer.picture_delay_millisec);
+    final int mDelay = MyApplication.getIntResource(R.integer.take_picture_delay_millisec);
     private final Object lock = new Object();
     private Subscriber mSubscriber;
     private boolean isStarted;
