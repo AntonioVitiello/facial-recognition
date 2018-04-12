@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
-import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,7 +15,7 @@ import android.widget.TextView;
 
 import timber.log.Timber;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends BaseActivity {
 
     private TextInputEditText mPasswordView;
     private AutoCompleteTextView mEmailView;
@@ -25,7 +24,6 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        overridePendingTransition(R.anim.rotate_in, R.anim.rotate_out);
 
         initComponent();
     }
@@ -63,7 +61,7 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.facrec, menu);
+        getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
@@ -72,8 +70,7 @@ public class LoginActivity extends AppCompatActivity {
         boolean consumed = false;
         switch (item.getItemId()) {
             case R.id.gallery_mi: {
-                Intent i = new Intent(this, GalleryActivity.class);
-                startActivity(i);
+                startGalleryActivity();
                 consumed = true;
                 break;
             }
@@ -84,4 +81,5 @@ public class LoginActivity extends AppCompatActivity {
         }
         return consumed;
     }
+
 }

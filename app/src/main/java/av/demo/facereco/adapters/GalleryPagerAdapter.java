@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
 import java.io.File;
+import java.util.Arrays;
 
 import av.demo.facereco.GalleryFragment;
 import av.demo.facereco.files.Utils;
@@ -30,7 +31,8 @@ public class GalleryPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        return GalleryFragment.newInstance(mPictureFiles[position]);
+        File[] files = Arrays.copyOfRange(mPictureFiles, position, mPictureFiles.length);
+        return GalleryFragment.newInstance(files);
     }
 
     @Override

@@ -123,16 +123,27 @@ public class TakePictureFragment extends Fragment implements Timer.Subscriber {
         }
     }
 
-    public void captureImage() {
+    // TODO: 12/04/2018 NOT USED
+    public void captureBitmap() {
         mCameraView.captureImage(new CameraKitEventCallback<CameraKitImage>() {
             @Override
             public void callback(CameraKitImage image) {
                 try {
                     Bitmap bitmap = image.getBitmap();
-                    int width = bitmap.getWidth();
-//                    AAA
-                    bitmap = Bitmap.createScaledBitmap(bitmap, 120, 120, false);
+                    mPictureSaver.setImage(bitmap);
+                    new Thread(mPictureSaver).run();
+                } catch (Exception exc) {
+                    Timber.e(exc, "Error while capturing image.");
+                }
+            }
+        });
+    }
 
+    public void captureImage() {
+        mCameraView.captureImage(new CameraKitEventCallback<CameraKitImage>() {
+            @Override
+            public void callback(CameraKitImage image) {
+                try {
                     byte[] jpeg = image.getJpeg();
                     mPictureSaver.setImage(jpeg);
                     new Thread(mPictureSaver).run();

@@ -1,11 +1,7 @@
 package av.demo.facereco;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -13,8 +9,7 @@ import av.demo.facereco.adapters.GalleryPagerAdapter;
 import av.demo.facereco.picasso.PicassoFaceDetector;
 import timber.log.Timber;
 
-public class GalleryActivity extends AppCompatActivity {
-
+public class GalleryActivity extends BaseActivity {
     private GalleryPagerAdapter mPagerAdapter;
     private ViewPager mViewPager;
 
@@ -23,22 +18,25 @@ public class GalleryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gallery);
 
-        PicassoFaceDetector.initialize(this);
-        mPagerAdapter = new GalleryPagerAdapter(this, getSupportFragmentManager());
+        if(getResources().getBoolean(R.bool.face_center_activated)) {
+            PicassoFaceDetector.initialize(this);
+        }
 
         initComponent();
     }
 
     private void initComponent(){
+        initActionBar();
+        mPagerAdapter = new GalleryPagerAdapter(this, getSupportFragmentManager());
         mViewPager = findViewById(R.id.gallery_vp);
         mViewPager.setAdapter(mPagerAdapter);
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
     }
 
     @Override
     protected void onDestroy() {
-        PicassoFaceDetector.releaseDetector();
+        if(getResources().getBoolean(R.bool.face_center_activated)) {
+            PicassoFaceDetector.releaseDetector();
+        }
         super.onDestroy();
     }
 
@@ -53,19 +51,17 @@ public class GalleryActivity extends AppCompatActivity {
         boolean consumed = false;
         switch (item.getItemId()) {
             case R.id.login_mi: {
-                Intent i = new Intent(this, LoginActivity.class);
-                startActivity(i);
+                startLoginActivity();
                 consumed = true;
                 break;
             }
             case R.id.personal_data_mi: {
-                Intent i = new Intent(this, PersonalDataActivity.class);
-                startActivity(i);
+                startPersonalDataActivity();
                 consumed = true;
                 break;
             }
             case android.R.id.home: {
-                NavUtils.navigateUpFromSameTask(this);
+                navigateUpFromSameTask();
                 consumed = true;
                 break;
             }
