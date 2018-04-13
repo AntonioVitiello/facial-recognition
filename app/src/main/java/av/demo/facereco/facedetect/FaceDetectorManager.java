@@ -1,4 +1,4 @@
-package av.demo.facereco.picasso;
+package av.demo.facereco.facedetect;
 
 import android.content.Context;
 
@@ -8,14 +8,14 @@ import com.google.android.gms.vision.face.FaceDetector;
  * Created by Antonio Vitiello on 11/04/2018.
  */
 
-public class PicassoFaceDetector {
+public class FaceDetectorManager {
 
     private static volatile FaceDetector faceDetector;
     private static Context mContext;
 
     public static Context getContext() {
         if (mContext == null) {
-            throw new RuntimeException("Initialize PicassoFaceDetector by calling PicassoFaceDetector.initialize(context).");
+            throw new RuntimeException("Initialize FaceDetectorManager by calling FaceDetectorManager.initialize(context).");
         }
         return mContext;
     }
@@ -29,7 +29,7 @@ public class PicassoFaceDetector {
 
     private static void initDetector() {
         if (faceDetector == null) {
-            synchronized (PicassoFaceDetector.class) {
+            synchronized (FaceDetectorManager.class) {
                 if (faceDetector == null) {
                     faceDetector = new
                             FaceDetector.Builder(getContext())
@@ -47,7 +47,7 @@ public class PicassoFaceDetector {
 
     /**
      * Release the detector when you no longer need it.
-     * Remember to call PicassoFaceDetector.initialize(context) if you have to re-use.
+     * Remember to call FaceDetectorManager.initialize(context) if you have to re-use.
      */
     public static void releaseDetector() {
         if (faceDetector != null) {

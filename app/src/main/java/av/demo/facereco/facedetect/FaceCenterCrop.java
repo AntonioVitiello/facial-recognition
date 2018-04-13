@@ -1,4 +1,4 @@
-package av.demo.facereco.picasso;
+package av.demo.facereco.facedetect;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -32,7 +32,7 @@ public class FaceCenterCrop implements Transformation {
             this.width = width;
             this.height = height;
         } else if (unit == DP) {
-            Resources resources = PicassoFaceDetector.getContext().getResources();
+            Resources resources = FaceDetectorManager.getContext().getResources();
             this.width = resources.getDimensionPixelSize(width);
             this.height = resources.getDimensionPixelSize(height);
         } else {
@@ -104,7 +104,7 @@ public class FaceCenterCrop implements Transformation {
      * @param centerOfAllFaces To store the center point.
      */
     private void detectFace(Bitmap bitmap, PointF centerOfAllFaces) {
-        FaceDetector faceDetector = PicassoFaceDetector.getFaceDetector();
+        FaceDetector faceDetector = FaceDetectorManager.getFaceDetector();
         if (!faceDetector.isOperational()) {
             centerOfAllFaces.set(bitmap.getWidth() / 2, bitmap.getHeight() / 2); // center crop
             return;

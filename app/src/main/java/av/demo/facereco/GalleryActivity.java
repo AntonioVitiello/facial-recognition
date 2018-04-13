@@ -9,7 +9,7 @@ import org.greenrobot.eventbus.EventBus;
 
 import av.demo.facereco.adapters.GalleryPagerAdapter;
 import av.demo.facereco.event.FaceCenterEvent;
-import av.demo.facereco.picasso.PicassoFaceDetector;
+import av.demo.facereco.facedetect.FaceDetectorManager;
 import timber.log.Timber;
 
 public class GalleryActivity extends BaseActivity {
@@ -22,7 +22,7 @@ public class GalleryActivity extends BaseActivity {
         setContentView(R.layout.activity_gallery);
 
         // Face  center initialization
-        PicassoFaceDetector.initialize(this);
+        FaceDetectorManager.initialize(this);
 
         initComponent();
     }
@@ -36,7 +36,7 @@ public class GalleryActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        PicassoFaceDetector.releaseDetector();
+        FaceDetectorManager.releaseDetector();
         super.onDestroy();
     }
 

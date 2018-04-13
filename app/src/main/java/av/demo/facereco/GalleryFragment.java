@@ -21,7 +21,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.io.File;
 
 import av.demo.facereco.event.FaceCenterEvent;
-import av.demo.facereco.picasso.FaceCenterCrop;
+import av.demo.facereco.facedetect.FaceCenterCrop;
 import timber.log.Timber;
 
 /**
@@ -65,7 +65,7 @@ public class GalleryFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_gallery, container, false);
-        mPictures = (File[])getArguments().getSerializable(PICTURE_FILE_KEY);
+        mPictures = (File[]) getArguments().getSerializable(PICTURE_FILE_KEY);
         mPictureImageView = rootView.findViewById(R.id.picture_iv);
         return rootView;
     }
@@ -77,14 +77,14 @@ public class GalleryFragment extends Fragment {
     }
 
     private void loadPicture() {
-        if(mIsFaceCenterActivated){
+        if (mIsFaceCenterActivated) {
             loadPictureFaceCenter();
         } else {
             loadPictureNatural();
         }
     }
 
-    private void loadPictureNatural(){
+    private void loadPictureNatural() {
         //Width, Height in pixel
         int targetWidth = MyApplication.getIntResource(R.integer.image_target_width);
         int targetHeight = MyApplication.getIntResource(R.integer.image_target_height);
@@ -94,10 +94,11 @@ public class GalleryFragment extends Fragment {
                 .into(mPictureImageView, new Callback() {
                     @Override
                     public void onSuccess() {
-                        if(mPictures.length > 1){
+                        if (mPictures.length > 1) {
                             cacheNextPicture();
                         }
                     }
+
                     @Override
                     public void onError(Exception exc) {
                         Timber.e(exc, "Error while loading picture file: %s", mPictures[0]);
@@ -106,7 +107,7 @@ public class GalleryFragment extends Fragment {
     }
 
     // TODO: 12/04/2018 Just for test
-    private void loadPictureFaceCenter(){
+    private void loadPictureFaceCenter() {
         //Width, Height in pixel
         int targetWidth = MyApplication.getIntResource(R.integer.image_target_width);
         int targetHeight = MyApplication.getIntResource(R.integer.image_target_height);
@@ -117,10 +118,11 @@ public class GalleryFragment extends Fragment {
                 .into(mPictureImageView, new Callback() {
                     @Override
                     public void onSuccess() {
-                        if(mPictures.length > 1){
+                        if (mPictures.length > 1) {
                             cacheNextPicture();
                         }
                     }
+
                     @Override
                     public void onError(Exception exc) {
                         Timber.e(exc, "Error while loading picture file: %s", mPictures[0]);
@@ -128,7 +130,7 @@ public class GalleryFragment extends Fragment {
                 });
     }
 
-    private void cacheNextPicture(){
+    private void cacheNextPicture() {
         //Width, Height in pixel
         int targetWidth = MyApplication.getIntResource(R.integer.image_target_width);
         int targetHeight = MyApplication.getIntResource(R.integer.image_target_height);
@@ -140,10 +142,12 @@ public class GalleryFragment extends Fragment {
                     public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
 
                     }
+
                     @Override
                     public void onBitmapFailed(Exception e, Drawable errorDrawable) {
 
                     }
+
                     @Override
                     public void onPrepareLoad(Drawable placeHolderDrawable) {
 
