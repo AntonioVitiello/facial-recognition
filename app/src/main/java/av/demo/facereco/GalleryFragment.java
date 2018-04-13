@@ -28,7 +28,7 @@ public class GalleryFragment extends Fragment {
     private static final FaceCenterCrop sFaceCenterCrop = new FaceCenterCrop(
             MyApplication.getIntResource(R.integer.image_target_width),
             MyApplication.getIntResource(R.integer.image_target_height));
-    private static final String ARG_PICTURE_FILE = "arg_picture_file";
+    private static final String PICTURE_FILE_KEY = "picture_file_key";
     private ImageView mPictureImageView;
     private File[] mPictures;
     private Picasso mPicasso;
@@ -43,7 +43,7 @@ public class GalleryFragment extends Fragment {
     public static GalleryFragment newInstance(File[] pictureFiles) {
         GalleryFragment fragment = new GalleryFragment();
         Bundle args = new Bundle();
-        args.putSerializable(ARG_PICTURE_FILE, pictureFiles);
+        args.putSerializable(PICTURE_FILE_KEY, pictureFiles);
         fragment.setArguments(args);
         return fragment;
     }
@@ -59,7 +59,7 @@ public class GalleryFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_gallery, container, false);
-        mPictures = (File[])getArguments().getSerializable(ARG_PICTURE_FILE);
+        mPictures = (File[])getArguments().getSerializable(PICTURE_FILE_KEY);
         mPictureImageView = rootView.findViewById(R.id.picture_iv);
         return rootView;
     }

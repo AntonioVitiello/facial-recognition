@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="45"
+                android:centerColor="@color/colorPrimaryDark"
+                android:endColor="@color/colorPrimary"
+                android:startColor="@color/colorAccent"
+                android:type="linear" />
+        </shape>
+    </item>
+    <item
+        android:width="24dp"
+        android:height="24dp"
+        android:drawable="@drawable/ic_splash_person"
+        android:gravity="center"/>
+    <item
+        android:width="124dp"
+        android:height="124dp"
+        android:drawable="@drawable/ic_splash_shutter"
+        android:gravity="center"/>
+</layer-list>
