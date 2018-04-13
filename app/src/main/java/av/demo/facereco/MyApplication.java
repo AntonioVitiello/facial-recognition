@@ -19,11 +19,10 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
         sInstance = this;
+        sPictureDir = getExternalCacheDir();
 
         // Timber initialization
         TimberLogImplementation.init(getStringResource(R.string.app_name));
-
-        sPictureDir = getExternalCacheDir();
     }
 
     @NonNull

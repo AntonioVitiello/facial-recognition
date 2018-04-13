@@ -5,7 +5,10 @@ import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import org.greenrobot.eventbus.EventBus;
+
 import av.demo.facereco.adapters.GalleryPagerAdapter;
+import av.demo.facereco.event.FaceCenterEvent;
 import av.demo.facereco.picasso.PicassoFaceDetector;
 import timber.log.Timber;
 
@@ -18,9 +21,8 @@ public class GalleryActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gallery);
 
-        if(getResources().getBoolean(R.bool.face_center_activated)) {
-            PicassoFaceDetector.initialize(this);
-        }
+        // Face  center initialization
+        PicassoFaceDetector.initialize(this);
 
         initComponent();
     }
@@ -34,9 +36,7 @@ public class GalleryActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        if(getResources().getBoolean(R.bool.face_center_activated)) {
-            PicassoFaceDetector.releaseDetector();
-        }
+        PicassoFaceDetector.releaseDetector();
         super.onDestroy();
     }
 
@@ -58,6 +58,10 @@ public class GalleryActivity extends BaseActivity {
             case R.id.personal_data_mi: {
                 startPersonalDataActivity();
                 consumed = true;
+                break;
+            }
+            case R.id.center_face: {
+                EventBus.getDefault().post(new FaceCenterEvent());
                 break;
             }
             case android.R.id.home: {

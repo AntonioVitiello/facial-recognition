@@ -11,4 +11,10 @@
         android:title="@string/personal_data_label"
         android:orderInCategory="200"
         app:showAsAction="never"/>
+    <item
+        android:id="@+id/center_face"
+        android:title="@string/personal_data_label"
+        android:icon="@drawable/ic_center_face"
+        android:orderInCategory="300"
+        app:showAsAction="always"/>
 </menu>

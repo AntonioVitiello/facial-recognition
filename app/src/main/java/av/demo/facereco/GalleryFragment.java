@@ -14,8 +14,13 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.io.File;
 
+import av.demo.facereco.event.FaceCenterEvent;
 import av.demo.facereco.picasso.FaceCenterCrop;
 import timber.log.Timber;
 
@@ -32,6 +37,7 @@ public class GalleryFragment extends Fragment {
     private ImageView mPictureImageView;
     private File[] mPictures;
     private Picasso mPicasso;
+    private boolean mIsFaceCenterActivated;
 
     public GalleryFragment() {
     }
@@ -67,15 +73,18 @@ public class GalleryFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        boolean isFaceCenterActivated = MyApplication.getBooleanResource(R.bool.face_center_activated);
-        if(isFaceCenterActivated){
+        loadPicture();
+    }
+
+    private void loadPicture() {
+        if(mIsFaceCenterActivated){
             loadPictureFaceCenter();
         } else {
-            loadPicture();
+            loadPictureNatural();
         }
     }
 
-    private void loadPicture(){
+    private void loadPictureNatural(){
         //Width, Height in pixel
         int targetWidth = MyApplication.getIntResource(R.integer.image_target_width);
         int targetHeight = MyApplication.getIntResource(R.integer.image_target_height);
@@ -140,6 +149,26 @@ public class GalleryFragment extends Fragment {
 
                     }
                 });
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Register EventBus
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        // Unregister EventBus
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onReviewsEvent(FaceCenterEvent event) {
+        mIsFaceCenterActivated = !mIsFaceCenterActivated;
+        loadPicture();
     }
 
 }
