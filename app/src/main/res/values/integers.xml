@@ -9,6 +9,9 @@
     <!--Max number of files to retain in FS-->
     <integer name="file_count_retain">20</integer>
 
+    <!--Image picture max dimensions (Width or Height) in pixel-->
+    <integer name="image_target_max_size">512</integer>
+
     <!--Target picture dimensions for Picasso-->
     <integer name="image_target_width">480</integer>
     <integer name="image_target_height">640</integer>

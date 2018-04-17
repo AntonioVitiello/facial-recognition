@@ -85,11 +85,9 @@ public class GalleryFragment extends Fragment {
     }
 
     private void loadPictureNatural() {
-        //Width, Height in pixel
-        int targetWidth = MyApplication.getIntResource(R.integer.image_target_width);
-        int targetHeight = MyApplication.getIntResource(R.integer.image_target_height);
+        int targetMaxSize = MyApplication.getIntResource(R.integer.image_target_max_size);
         mPicasso.load(mPictures[0])
-                .resize(targetWidth, targetHeight)
+                .resize(targetMaxSize, targetMaxSize)
                 .centerInside()
                 .into(mPictureImageView, new Callback() {
                     @Override
@@ -106,13 +104,11 @@ public class GalleryFragment extends Fragment {
                 });
     }
 
-    // TODO: 12/04/2018 Just for test
+    // TODO: 12/04/2018 Just for test Vision face detection
     private void loadPictureFaceCenter() {
-        //Width, Height in pixel
-        int targetWidth = MyApplication.getIntResource(R.integer.image_target_width);
-        int targetHeight = MyApplication.getIntResource(R.integer.image_target_height);
+        int targetMaxSize = MyApplication.getIntResource(R.integer.image_target_max_size);
         mPicasso.load(mPictures[0])
-                .resize(targetWidth, targetHeight)
+                .resize(targetMaxSize, targetMaxSize)
                 .centerInside()
                 .transform(sFaceCenterCrop)
                 .into(mPictureImageView, new Callback() {
@@ -131,11 +127,9 @@ public class GalleryFragment extends Fragment {
     }
 
     private void cacheNextPicture() {
-        //Width, Height in pixel
-        int targetWidth = MyApplication.getIntResource(R.integer.image_target_width);
-        int targetHeight = MyApplication.getIntResource(R.integer.image_target_height);
+        int targetMaxSize = MyApplication.getIntResource(R.integer.image_target_max_size);
         mPicasso.load(mPictures[1])
-                .resize(targetWidth, targetHeight)
+                .resize(targetMaxSize, targetMaxSize)
                 .centerInside()
                 .into(new Target() {
                     @Override

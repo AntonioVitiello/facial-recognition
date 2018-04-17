@@ -13,7 +13,7 @@ import java.io.File;
 import java.util.Arrays;
 
 import av.demo.facereco.GalleryFragment;
-import av.demo.facereco.files.Utils;
+import av.demo.facereco.files.FileUtils;
 
 /**
  * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
@@ -26,7 +26,7 @@ public class GalleryPagerAdapter extends FragmentPagerAdapter {
     public GalleryPagerAdapter(Context context, FragmentManager fm) {
         super(fm);
         mContext = context;
-        mPictureFiles = Utils.listPictureSortByModified(Utils.SORT_ORDER_DESCENDING);
+        mPictureFiles = FileUtils.listPictureSortByModified(FileUtils.SORT_ORDER_DESCENDING);
     }
 
     @Override

@@ -13,7 +13,7 @@ import timber.log.Timber;
  * Created by Antonio Vitiello on 11/04/2018.
  */
 
-public class Utils {
+public class FileUtils {
     public static final int SORT_ORDER_ASCENDING = 0;
     public static final int SORT_ORDER_DESCENDING = 1;
 

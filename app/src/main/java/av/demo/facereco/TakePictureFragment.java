@@ -1,6 +1,6 @@
 package av.demo.facereco;
 
-import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -13,8 +13,9 @@ import com.wonderkiln.camerakit.CameraKitEventCallback;
 import com.wonderkiln.camerakit.CameraKitImage;
 import com.wonderkiln.camerakit.CameraView;
 
-import av.demo.facereco.files.PictureDirCleaner;
-import av.demo.facereco.files.PictureSaver;
+import av.demo.facereco.files.PictureDirCleanerTask;
+import av.demo.facereco.files.PictureSaverTask;
+import av.demo.facereco.images.ImageBox;
 import av.demo.facereco.scheduler.Timer;
 import timber.log.Timber;
 
@@ -26,10 +27,10 @@ public class TakePictureFragment extends Fragment implements Timer.Subscriber {
     private static final int TAKE_PICTURE_ALARM_ID = 1;
     private static final int FILE_CLEANER_ALARM_ID = 2;
     private CameraView mCameraView;
-    private PictureSaver mPictureSaver;
     private Timer mTakePictureTimer;
     private Timer mFileCleanerTimer;
-    private PictureDirCleaner mPictureDirCleaner;
+    private PictureSaverTask mPictureSaverTask;
+    private PictureDirCleanerTask mPictureDirCleanerTask;
 
     public TakePictureFragment() {
     }
@@ -40,12 +41,6 @@ public class TakePictureFragment extends Fragment implements Timer.Subscriber {
         super.onCreate(savedInstanceState);
         // TODO: 11/04/2018  setRetainInstance ?
 //        setRetainInstance(true);
-
-        // Instantiate picture file saver
-        mPictureSaver = new PictureSaver();
-
-        // Instantiate picture dir cleaner
-        mPictureDirCleaner = new PictureDirCleaner();
 
         // Start timer to take picture
         mTakePictureTimer = new Timer.Builder()
@@ -113,7 +108,7 @@ public class TakePictureFragment extends Fragment implements Timer.Subscriber {
     public void onSchedule(int alarmId) {
         switch (alarmId) {
             case TAKE_PICTURE_ALARM_ID:
-                captureImage();
+                capturePicture();
                 break;
             case FILE_CLEANER_ALARM_ID:
                 cleanPictureDir();
@@ -123,43 +118,41 @@ public class TakePictureFragment extends Fragment implements Timer.Subscriber {
         }
     }
 
-    // TODO: 12/04/2018 NOT USED
-    public void captureBitmap() {
+    public void capturePicture() {
         mCameraView.captureImage(new CameraKitEventCallback<CameraKitImage>() {
             @Override
             public void callback(CameraKitImage image) {
-                try {
-                    Bitmap bitmap = image.getBitmap();
-                    mPictureSaver.setImage(bitmap);
-                    new Thread(mPictureSaver).run();
-                } catch (Exception exc) {
-                    Timber.e(exc, "Error while capturing image.");
-                }
+                byte[] jpeg = image.getJpeg();
+                savePicture(jpeg);
             }
         });
     }
 
-    public void captureImage() {
-        mCameraView.captureImage(new CameraKitEventCallback<CameraKitImage>() {
-            @Override
-            public void callback(CameraKitImage image) {
-                try {
-                    byte[] jpeg = image.getJpeg();
-                    mPictureSaver.setImage(jpeg);
-                    new Thread(mPictureSaver).run();
-                } catch (Exception exc) {
-                    Timber.e(exc, "Error while capturing image.");
+    private void savePicture(byte[] jpeg){
+        if(mPictureSaverTask != null) {
+            AsyncTask.Status status = mPictureSaverTask.getStatus();
+            if(status != AsyncTask.Status.FINISHED) {
+                Timber.w("Stopping previous picture saving.");
+                if(mPictureSaverTask.cancel(true)){
+                    mPictureSaverTask.cleanOutputFile();
                 }
             }
-        });
+        }
+        mPictureSaverTask = new PictureSaverTask();
+        mPictureSaverTask.execute(new ImageBox(jpeg));
     }
 
     private void cleanPictureDir() {
         Timber.d("Clean picture dir request");
-        if(mPictureDirCleaner.isAlive()){
-            mPictureDirCleaner.stop();
+        if(mPictureDirCleanerTask != null) {
+            AsyncTask.Status status = mPictureDirCleanerTask.getStatus();
+            if(status != AsyncTask.Status.FINISHED) {
+                Timber.w("Stopping previous picture cleaning.");
+                mPictureDirCleanerTask.cancel(true);
+            }
         }
-        mPictureDirCleaner.start();
+        mPictureDirCleanerTask = new PictureDirCleanerTask();
+        mPictureDirCleanerTask.execute();
     }
 
 }
