@@ -50,8 +50,7 @@ public class FaceCenterCrop implements Transformation {
 
         if (scaleX != scaleY) {
 
-            Bitmap.Config config =
-                    original.getConfig() != null ? original.getConfig() : Bitmap.Config.ARGB_8888;
+            Bitmap.Config config = original.getConfig() != null ? original.getConfig() : Bitmap.Config.ARGB_8888;
             Bitmap result = Bitmap.createBitmap(width, height, config);
 
             float scale = Math.max(scaleX, scaleY);
