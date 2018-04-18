@@ -1,6 +1,5 @@
 package av.demo.facereco;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -129,14 +128,9 @@ public class TakePictureFragment extends Fragment implements Timer.Subscriber {
     }
 
     private void savePicture(byte[] jpeg){
+        Timber.d("Save picture request");
         if(mPictureSaverTask != null) {
-            AsyncTask.Status status = mPictureSaverTask.getStatus();
-            if(status != AsyncTask.Status.FINISHED) {
-                Timber.w("Stopping previous picture saving.");
-                if(mPictureSaverTask.cancel(true)){
-                    mPictureSaverTask.cleanOutputFile();
-                }
-            }
+            mPictureSaverTask.stop();
         }
         mPictureSaverTask = new PictureSaverTask();
         mPictureSaverTask.execute(new ImageBox(jpeg));
@@ -145,11 +139,7 @@ public class TakePictureFragment extends Fragment implements Timer.Subscriber {
     private void cleanPictureDir() {
         Timber.d("Clean picture dir request");
         if(mPictureDirCleanerTask != null) {
-            AsyncTask.Status status = mPictureDirCleanerTask.getStatus();
-            if(status != AsyncTask.Status.FINISHED) {
-                Timber.w("Stopping previous picture cleaning.");
-                mPictureDirCleanerTask.cancel(true);
-            }
+            mPictureDirCleanerTask.stop();
         }
         mPictureDirCleanerTask = new PictureDirCleanerTask();
         mPictureDirCleanerTask.execute();

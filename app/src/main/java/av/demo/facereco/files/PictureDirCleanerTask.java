@@ -45,4 +45,11 @@ public class PictureDirCleanerTask extends AsyncTask<Void, Void, File[]> {
         Timber.d("Picture dir cleaner: deleted %d files.", files.length);
     }
 
+    public void stop() {
+        if(getStatus() != AsyncTask.Status.FINISHED) {
+            Timber.w("Picture dir cleaner: stopping task!");
+            cancel(true);
+        }
+    }
+
 }

@@ -29,15 +29,17 @@ import timber.log.Timber;
  */
 
 public class GalleryFragment extends Fragment {
-    // TODO: 12/04/2018 Just for test
-    private static final FaceCenterCrop sFaceCenterCrop = new FaceCenterCrop(
-            MyApplication.getIntResource(R.integer.image_target_width),
-            MyApplication.getIntResource(R.integer.image_target_height));
     private static final String PICTURE_FILE_KEY = "picture_file_key";
     private ImageView mPictureImageView;
     private File[] mPictures;
     private Picasso mPicasso;
     private boolean mIsFaceCenterActivated;
+
+    // TODO: 12/04/2018 Just for test
+    private static final FaceCenterCrop sFaceCenterCrop = new FaceCenterCrop(
+            MyApplication.getIntResource(R.integer.image_target_width),
+            MyApplication.getIntResource(R.integer.image_target_height));
+
 
     public GalleryFragment() {
     }

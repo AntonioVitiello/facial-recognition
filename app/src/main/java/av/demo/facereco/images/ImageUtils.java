@@ -22,6 +22,10 @@ public class ImageUtils {
     private final Picasso mPicasso;
     private final int mTargetMaxSize;
 
+    public interface OnImageReady {
+        void setBitmap(Bitmap bitmap);
+    }
+
 
     private ImageUtils() {
         mPicasso = Picasso.get();
@@ -61,11 +65,6 @@ public class ImageUtils {
     public Bitmap resizeImage(byte[] imageAsBytes, int dstHeight, int dstWidth) {
         Bitmap bitmap = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
         return Bitmap.createScaledBitmap(bitmap, dstWidth, dstHeight, false);
-    }
-
-
-    public interface OnImageReady{
-        void setBitmap(Bitmap bitmap);
     }
 
 }
