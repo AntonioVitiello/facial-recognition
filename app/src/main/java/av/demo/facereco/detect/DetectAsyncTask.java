@@ -98,7 +98,6 @@ public class DetectAsyncTask extends AsyncTask<File, Void, List<VisionDetRet>> {
     }
 
     private void drawRect(List<VisionDetRet> results, int color) {
-        Timber.d("FaceDet: draw rect on %d face.", results.size());
         Bitmap bitmap = ((BitmapDrawable) mImageView.getDrawable()).getBitmap();
         android.graphics.Bitmap.Config bitmapConfig = bitmap.getConfig();
         // set default bitmap config if none
@@ -117,7 +116,6 @@ public class DetectAsyncTask extends AsyncTask<File, Void, List<VisionDetRet>> {
 
         // Loop result list
         for (VisionDetRet ret : results) {
-            Timber.d("FaceDet: VisionDetRet[%s], FaceLandmarks=%d", ret, ret.getFaceLandmarks().size());
             Rect bounds = new Rect();
             bounds.left = (int) (ret.getLeft());
             bounds.top = (int) (ret.getTop());
@@ -128,7 +126,6 @@ public class DetectAsyncTask extends AsyncTask<File, Void, List<VisionDetRet>> {
             // Get landmark
             ArrayList<Point> landmarks = ret.getFaceLandmarks();
             for (Point point : landmarks) {
-                Timber.d("FaceDet: landmarks[%s]", point);
                 int pointX = (int) (point.x);
                 int pointY = (int) (point.y);
                 canvas.drawCircle(pointX, pointY, 2, paint);
@@ -136,10 +133,6 @@ public class DetectAsyncTask extends AsyncTask<File, Void, List<VisionDetRet>> {
         }
 
         mImageView.setImageBitmap(bitmap);
-    }
-
-    public void toggle() {
-
     }
 
 }
