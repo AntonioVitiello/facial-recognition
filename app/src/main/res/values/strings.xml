@@ -61,5 +61,6 @@
     <string name="image_extension">.jpg</string>
 
     <string name="self_picture">Self picture</string>
+    <string name="disk_request_permission">Needs disk write permission.</string>
 
 </resources>

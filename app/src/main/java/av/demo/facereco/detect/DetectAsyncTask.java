@@ -12,7 +12,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.widget.ImageView;
 
-import com.tzutalin.dlib.Constants;
 import com.tzutalin.dlib.FaceDet;
 import com.tzutalin.dlib.VisionDetRet;
 
@@ -32,8 +31,8 @@ public class DetectAsyncTask extends AsyncTask<File, Void, List<VisionDetRet>> {
     private final Context mContext;
     private final ImageView mImageView;
     private ProgressDialog mDialog;
-    private static FaceDet mFaceDet;
-
+    private static FaceDet sFaceDet;
+    private static Object lock = new Object();
 
     public DetectAsyncTask(Context context, ImageView imageView) {
         mContext = context;
@@ -48,28 +47,34 @@ public class DetectAsyncTask extends AsyncTask<File, Void, List<VisionDetRet>> {
     @Override
     protected List<VisionDetRet> doInBackground(File... pictureFiles) {
         File pictureFile = pictureFiles[0];
-
-        initFaceDet();
-
         Timber.d("FaceDet: with file %s", pictureFile);
-        List<VisionDetRet> faceList = mFaceDet.detect(pictureFile.getPath());
+        List<VisionDetRet> faceList = sFaceDet.detect(pictureFile.getPath());
         Timber.d("FaceDet: %d faces detected.", faceList.size());
-
         return faceList;
     }
 
-    private void initFaceDet() {
-        if (mFaceDet == null) {
-            // Copy file shape model
-            String targetPath = Constants.getFaceShapeModelPath();
-            if (new File(targetPath).exists()) {
-                Timber.d("FaceDet: landmark model already in %s", targetPath);
-            } else {
-                Timber.d("FaceDet: copy landmark model to %s", targetPath);
-                FileUtils.copyFileFromRawToOthers(mContext, R.raw.shape_predictor_68_face_landmarks, targetPath);
+    public static final void initialize(final Context context) {
+        if (lock != null) {
+            synchronized (lock) {
+                if (lock != null) {
+                    lock = null;
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            // Copy file shape model just one time
+                            File modelFile = FileUtils.getFaceShapeModelFile();
+                            if (modelFile.exists()) {
+                                Timber.d("FaceDet: landmark model already in %s", modelFile);
+                            } else {
+                                Timber.d("FaceDet: copy landmark model to %s", modelFile);
+                                FileUtils.copyFromRaw(context, R.raw.shape_predictor_68_face_landmarks, modelFile);
+                            }
+                            // Instantiate FaceDet
+                            sFaceDet = new FaceDet(modelFile.getPath());
+                        }
+                    }).start();
+                }
             }
-            // Instantiate FaceDet
-            mFaceDet = new FaceDet(targetPath);
         }
     }
 
@@ -136,4 +141,5 @@ public class DetectAsyncTask extends AsyncTask<File, Void, List<VisionDetRet>> {
     public void toggle() {
 
     }
+
 }

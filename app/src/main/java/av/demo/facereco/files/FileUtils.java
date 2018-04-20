@@ -65,22 +65,22 @@ public class FileUtils {
      *
      * @param context
      * @param id         Raw resouce id eg: R.raw.shape_predictor_68_face_landmarks
-     * @param targetPath File path to write
+     * @param targetFile File path to write
      */
     @NonNull
-    public static final void copyFileFromRawToOthers(@NonNull final Context context, @RawRes int id,
-                                                     @NonNull final String targetPath) {
+    public static final void copyFromRaw(@NonNull final Context context, @RawRes int id,
+                                         @NonNull final File targetFile) {
         InputStream in = context.getResources().openRawResource(id);
         FileOutputStream out = null;
         try {
-            out = new FileOutputStream(targetPath);
+            out = new FileOutputStream(targetFile);
             byte[] buff = new byte[1024];
             int read = 0;
             while ((read = in.read(buff)) > 0) {
                 out.write(buff, 0, read);
             }
         } catch (Exception exc) {
-            Timber.e(exc, "Error while writing file: %s", targetPath);
+            Timber.e(exc, "Error while writing file: %s", targetFile);
         } finally {
             try {
                 if (in != null) {
@@ -97,6 +97,16 @@ public class FileUtils {
                 Timber.e(exc, "Error while closing file output stream.");
             }
         }
+    }
+
+    /**
+     * getFaceShapeModelPath eg:
+     * /storage/emulated/0/Android/device/cache/shape_predictor_68_face_landmarks.dat
+     * @return default face shape model path
+     */
+    public static File getFaceShapeModelFile() {
+        File externalCacheDir = MyApplication.getPictureDir();
+        return new File(externalCacheDir, "shape_predictor_68_face_landmarks.dat");
     }
 
 }

@@ -21,7 +21,6 @@ import android.support.annotation.Keep;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
-import android.util.Log;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,6 +30,7 @@ import timber.log.Timber;
 /**
  * Created by Tzutalin on 2015/10/20.
  */
+@SuppressWarnings("JniMissingFunction")
 public class PedestrianDet {
 
     // accessed by native methods

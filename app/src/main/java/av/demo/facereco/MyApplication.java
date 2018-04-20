@@ -46,4 +46,5 @@ public class MyApplication extends Application {
     public static File getPictureDir() {
         return sPictureDir;
     }
+
 }

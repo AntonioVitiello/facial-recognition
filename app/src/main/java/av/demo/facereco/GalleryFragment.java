@@ -64,6 +64,8 @@ public class GalleryFragment extends Fragment {
         mPicasso = Picasso.get();
         // Add triangle on image left corner: red for net loaded, blue for disk loaded, green for memory loaded
         mPicasso.setIndicatorsEnabled(true);
+        // Face detection initialization
+        DetectAsyncTask.initialize(getContext());
     }
 
     @Override

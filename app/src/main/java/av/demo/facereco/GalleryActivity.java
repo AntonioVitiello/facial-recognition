@@ -1,6 +1,10 @@
 package av.demo.facereco;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -8,11 +12,15 @@ import android.view.MenuItem;
 import org.greenrobot.eventbus.EventBus;
 
 import av.demo.facereco.adapters.GalleryPagerAdapter;
+import av.demo.facereco.dialogs.ErrorDialog;
+import av.demo.facereco.dialogs.PermissionDialog;
 import av.demo.facereco.event.FaceCenterEvent;
 import av.demo.facereco.facedetect.FaceDetectorManager;
 import timber.log.Timber;
 
 public class GalleryActivity extends BaseActivity {
+    private static final int WRITE_PERMISSION_CODE = 1;
+    private static final String FRAGMENT_DIALOG_TAG = "dialog";
     private GalleryPagerAdapter mPagerAdapter;
     private ViewPager mViewPager;
 
@@ -25,6 +33,7 @@ public class GalleryActivity extends BaseActivity {
         FaceDetectorManager.initialize(this);
 
         initComponent();
+        checkPermissions();
     }
 
     private void initComponent(){
@@ -32,6 +41,34 @@ public class GalleryActivity extends BaseActivity {
         mPagerAdapter = new GalleryPagerAdapter(this, getSupportFragmentManager());
         mViewPager = findViewById(R.id.gallery_vp);
         mViewPager.setAdapter(mPagerAdapter);
+    }
+
+    private void checkPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            String writePermission = Manifest.permission.WRITE_EXTERNAL_STORAGE;
+            if (shouldShowRequestPermissionRationale(writePermission)) {
+                PermissionDialog.newInstance(writePermission, WRITE_PERMISSION_CODE)
+                        .show(getSupportFragmentManager(), FRAGMENT_DIALOG_TAG);
+            } else {
+                requestPermissions(new String[]{writePermission}, WRITE_PERMISSION_CODE);
+            }
+        }
+    }
+
+    /**
+     * Callback received when a permissions request has been completed, only on SDK M or later...
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == WRITE_PERMISSION_CODE) {
+            if (grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                ErrorDialog.newInstance(getString(R.string.disk_request_permission))
+                        .show(getSupportFragmentManager(), FRAGMENT_DIALOG_TAG);
+                finish();
+            }
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
     }
 
     @Override
