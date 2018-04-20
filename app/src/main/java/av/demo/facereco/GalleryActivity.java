@@ -52,12 +52,14 @@ public class GalleryActivity extends BaseActivity {
         switch (item.getItemId()) {
             case R.id.login_mi: {
                 startLoginActivity();
+                finish();
                 consumed = true;
                 break;
             }
             case R.id.personal_data_mi: {
                 startPersonalDataActivity();
                 consumed = true;
+                finish();
                 break;
             }
             case R.id.center_face: {
@@ -66,6 +68,7 @@ public class GalleryActivity extends BaseActivity {
             }
             case android.R.id.home: {
                 navigateUpFromSameTask();
+                finish();
                 consumed = true;
                 break;
             }

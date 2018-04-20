@@ -1,8 +1,16 @@
 package av.demo.facereco.files;
 
+import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.RawRes;
+
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 
 import av.demo.facereco.MyApplication;
@@ -41,18 +49,54 @@ public class FileUtils {
     }
 
     public static File[] sortByModified(File[] files, final int sortOrder) {
-        Arrays.sort(files, new Comparator<File>(){
+        Arrays.sort(files, new Comparator<File>() {
             public int compare(File file1, File file2) {
-                switch (sortOrder) {
-                    case SORT_ORDER_ASCENDING:
-                        return Long.valueOf(file1.lastModified()).compareTo(file2.lastModified());
-                    case SORT_ORDER_DESCENDING:
-                    default:
-                        return Long.valueOf(file2.lastModified()).compareTo(file1.lastModified());
-
-                }
+                return Long.valueOf(file1.lastModified()).compareTo(file2.lastModified());
             }
         });
+        if(sortOrder == SORT_ORDER_DESCENDING) {
+            Arrays.sort(files, Collections.reverseOrder());
+        }
         return files;
     }
+
+    /**
+     * Copy a raw resouce to a target path
+     *
+     * @param context
+     * @param id         Raw resouce id eg: R.raw.shape_predictor_68_face_landmarks
+     * @param targetPath File path to write
+     */
+    @NonNull
+    public static final void copyFileFromRawToOthers(@NonNull final Context context, @RawRes int id,
+                                                     @NonNull final String targetPath) {
+        InputStream in = context.getResources().openRawResource(id);
+        FileOutputStream out = null;
+        try {
+            out = new FileOutputStream(targetPath);
+            byte[] buff = new byte[1024];
+            int read = 0;
+            while ((read = in.read(buff)) > 0) {
+                out.write(buff, 0, read);
+            }
+        } catch (Exception exc) {
+            Timber.e(exc, "Error while writing file: %s", targetPath);
+        } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (IOException exc) {
+                Timber.e(exc, "Error while closing file input stream.");
+            }
+            try {
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException exc) {
+                Timber.e(exc, "Error while closing file output stream.");
+            }
+        }
+    }
+
 }

@@ -20,9 +20,11 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 
+import av.demo.facereco.detect.DetectAsyncTask;
 import av.demo.facereco.event.FaceCenterEvent;
 import av.demo.facereco.facedetect.FaceCenterCrop;
 import timber.log.Timber;
+
 
 /**
  * Created by Antonio Vitiello on 10/04/2018.
@@ -33,7 +35,7 @@ public class GalleryFragment extends Fragment {
     private ImageView mPictureImageView;
     private File[] mPictures;
     private Picasso mPicasso;
-    private boolean mIsFaceCenterActivated;
+    private DetectAsyncTask mDetectAsyncTask;
 
     // TODO: 12/04/2018 Just for test
     private static final FaceCenterCrop sFaceCenterCrop = new FaceCenterCrop(
@@ -72,21 +74,33 @@ public class GalleryFragment extends Fragment {
         return rootView;
     }
 
+/*
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if(isVisibleToUser){
+            ...
+        }
+    }
+*/
+
     @Override
     public void onResume() {
         super.onResume();
-        loadPicture();
-    }
-
-    private void loadPicture() {
-        if (mIsFaceCenterActivated) {
-            loadPictureFaceCenter();
-        } else {
-            loadPictureNatural();
+        EventBus eventBus = EventBus.getDefault();
+        if(!eventBus.isRegistered(this)){
+            eventBus.register(this);
+            loadPicture();
         }
     }
 
-    private void loadPictureNatural() {
+    @Override
+    public void onPause() {
+        EventBus.getDefault().unregister(this);
+        super.onPause();
+    }
+
+    private void loadPicture() {
         int targetMaxSize = MyApplication.getIntResource(R.integer.image_target_max_size);
         mPicasso.load(mPictures[0])
                 .resize(targetMaxSize, targetMaxSize)
@@ -151,24 +165,22 @@ public class GalleryFragment extends Fragment {
                 });
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        // Register EventBus
-        EventBus.getDefault().register(this);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        // Unregister EventBus
-        EventBus.getDefault().unregister(this);
-    }
-
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onReviewsEvent(FaceCenterEvent event) {
-        mIsFaceCenterActivated = !mIsFaceCenterActivated;
-        loadPicture();
+    public void onFaceCenterEvent(FaceCenterEvent event) {
+        if(mDetectAsyncTask != null) {
+            loadPicture();
+            mDetectAsyncTask = null;
+        } else {
+            faceDetect();
+        }
+    }
+
+    /**
+     * start Face Detection
+     */
+    private void faceDetect(){
+        mDetectAsyncTask = new DetectAsyncTask(getContext(), mPictureImageView);
+        mDetectAsyncTask.execute(mPictures[0]);
     }
 
 }
