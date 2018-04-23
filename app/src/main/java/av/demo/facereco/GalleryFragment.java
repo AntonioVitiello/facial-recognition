@@ -22,7 +22,6 @@ import java.io.File;
 
 import av.demo.facereco.detect.DetectAsyncTask;
 import av.demo.facereco.event.FaceCenterEvent;
-import av.demo.facereco.facedetect.FaceCenterCrop;
 import timber.log.Timber;
 
 
@@ -36,12 +35,6 @@ public class GalleryFragment extends Fragment {
     private File[] mPictures;
     private Picasso mPicasso;
     private DetectAsyncTask mDetectAsyncTask;
-
-    // TODO: 12/04/2018 Just for test
-    private static final FaceCenterCrop sFaceCenterCrop = new FaceCenterCrop(
-            MyApplication.getIntResource(R.integer.image_target_width),
-            MyApplication.getIntResource(R.integer.image_target_height));
-
 
     public GalleryFragment() {
     }
@@ -64,8 +57,6 @@ public class GalleryFragment extends Fragment {
         mPicasso = Picasso.get();
         // Add triangle on image left corner: red for net loaded, blue for disk loaded, green for memory loaded
         mPicasso.setIndicatorsEnabled(true);
-        // Face detection initialization
-        DetectAsyncTask.initialize(getContext());
     }
 
     @Override
@@ -76,22 +67,13 @@ public class GalleryFragment extends Fragment {
         return rootView;
     }
 
-/*
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-        if(isVisibleToUser){
-            ...
-        }
-    }
-*/
-
     @Override
     public void onResume() {
         super.onResume();
         EventBus eventBus = EventBus.getDefault();
         if(!eventBus.isRegistered(this)){
             eventBus.register(this);
+            mDetectAsyncTask = null;
             loadPicture();
         }
     }
@@ -107,28 +89,6 @@ public class GalleryFragment extends Fragment {
         mPicasso.load(mPictures[0])
                 .resize(targetMaxSize, targetMaxSize)
                 .centerInside()
-                .into(mPictureImageView, new Callback() {
-                    @Override
-                    public void onSuccess() {
-                        if (mPictures.length > 1) {
-                            cacheNextPicture();
-                        }
-                    }
-
-                    @Override
-                    public void onError(Exception exc) {
-                        Timber.e(exc, "Error while loading picture file: %s", mPictures[0]);
-                    }
-                });
-    }
-
-    // TODO: 12/04/2018 Just for test Vision face detection
-    private void loadPictureFaceCenter() {
-        int targetMaxSize = MyApplication.getIntResource(R.integer.image_target_max_size);
-        mPicasso.load(mPictures[0])
-                .resize(targetMaxSize, targetMaxSize)
-                .centerInside()
-                .transform(sFaceCenterCrop)
                 .into(mPictureImageView, new Callback() {
                     @Override
                     public void onSuccess() {
@@ -169,6 +129,9 @@ public class GalleryFragment extends Fragment {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onFaceCenterEvent(FaceCenterEvent event) {
+        if(!getUserVisibleHint()){
+            return;
+        }
         if(mDetectAsyncTask != null) {
             loadPicture();
             mDetectAsyncTask = null;

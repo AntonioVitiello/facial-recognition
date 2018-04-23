@@ -12,10 +12,10 @@ import android.view.MenuItem;
 import org.greenrobot.eventbus.EventBus;
 
 import av.demo.facereco.adapters.GalleryPagerAdapter;
+import av.demo.facereco.detect.DetectAsyncTask;
 import av.demo.facereco.dialogs.ErrorDialog;
-import av.demo.facereco.dialogs.PermissionDialog;
+import av.demo.facereco.dialogs.RationaleDialog;
 import av.demo.facereco.event.FaceCenterEvent;
-import av.demo.facereco.facedetect.FaceDetectorManager;
 import timber.log.Timber;
 
 public class GalleryActivity extends BaseActivity {
@@ -29,8 +29,8 @@ public class GalleryActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gallery);
 
-        // Face  center initialization
-        FaceDetectorManager.initialize(this);
+        // Face detection initialization
+        DetectAsyncTask.initialize(this);
 
         initComponent();
         checkPermissions();
@@ -47,7 +47,7 @@ public class GalleryActivity extends BaseActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             String writePermission = Manifest.permission.WRITE_EXTERNAL_STORAGE;
             if (shouldShowRequestPermissionRationale(writePermission)) {
-                PermissionDialog.newInstance(writePermission, WRITE_PERMISSION_CODE)
+                RationaleDialog.newInstance(writePermission, WRITE_PERMISSION_CODE, getString(R.string.disk_request_permission))
                         .show(getSupportFragmentManager(), FRAGMENT_DIALOG_TAG);
             } else {
                 requestPermissions(new String[]{writePermission}, WRITE_PERMISSION_CODE);
@@ -62,9 +62,8 @@ public class GalleryActivity extends BaseActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == WRITE_PERMISSION_CODE) {
             if (grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                ErrorDialog.newInstance(getString(R.string.disk_request_permission))
+                ErrorDialog.newInstance(getString(R.string.disk_denied_permission))
                         .show(getSupportFragmentManager(), FRAGMENT_DIALOG_TAG);
-                finish();
             }
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -73,7 +72,8 @@ public class GalleryActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        FaceDetectorManager.releaseDetector();
+        // Release face detector
+        DetectAsyncTask.releaseDetector();
         super.onDestroy();
     }
 

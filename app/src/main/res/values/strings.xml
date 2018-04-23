@@ -61,6 +61,7 @@
     <string name="image_extension">.jpg</string>
 
     <string name="self_picture">Self picture</string>
-    <string name="disk_request_permission">Needs disk write permission.</string>
+    <string name="disk_request_permission">Please grant disk write permission to allow face detection from picture file.</string>
+    <string name="disk_denied_permission">Sorry disk write permission is required for this application to work!</string>
 
 </resources>

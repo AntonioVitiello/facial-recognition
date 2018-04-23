@@ -10,6 +10,7 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.widget.ImageView;
 
 import com.tzutalin.dlib.FaceDet;
@@ -46,6 +47,10 @@ public class DetectAsyncTask extends AsyncTask<File, Void, List<VisionDetRet>> {
 
     @Override
     protected List<VisionDetRet> doInBackground(File... pictureFiles) {
+        if(sFaceDet == null){
+            Timber.w("FaceDet: detector not initialized.");
+            return new ArrayList<>();
+        }
         File pictureFile = pictureFiles[0];
         Timber.d("FaceDet: with file %s", pictureFile);
         List<VisionDetRet> faceList = sFaceDet.detect(pictureFile.getPath());
@@ -53,35 +58,14 @@ public class DetectAsyncTask extends AsyncTask<File, Void, List<VisionDetRet>> {
         return faceList;
     }
 
-    public static final void initialize(final Context context) {
-        if (lock != null) {
-            synchronized (lock) {
-                if (lock != null) {
-                    lock = null;
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            // Copy file shape model just one time
-                            File modelFile = FileUtils.getFaceShapeModelFile();
-                            if (modelFile.exists()) {
-                                Timber.d("FaceDet: landmark model already in %s", modelFile);
-                            } else {
-                                Timber.d("FaceDet: copy landmark model to %s", modelFile);
-                                FileUtils.copyFromRaw(context, R.raw.shape_predictor_68_face_landmarks, modelFile);
-                            }
-                            // Instantiate FaceDet
-                            sFaceDet = new FaceDet(modelFile.getPath());
-                        }
-                    }).start();
-                }
-            }
-        }
-    }
-
     @Override
     protected void onPostExecute(List<VisionDetRet> faceList) {
         dismissDialog();
-        if (faceList.size() > 0) {
+        if (faceList.size() == 0) {
+            if(sFaceDet == null) {
+                showDialogNotReady();
+            }
+        } else {
             // drawFaceLandmarks
             drawRect(faceList, Color.GREEN);
         }
@@ -95,6 +79,16 @@ public class DetectAsyncTask extends AsyncTask<File, Void, List<VisionDetRet>> {
         if (mDialog != null) {
             mDialog.dismiss();
         }
+    }
+
+    private void showDialogNotReady() {
+        mDialog = ProgressDialog.show(mContext, "Wait", "Face detection initializing...", true);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mDialog.dismiss();
+            }
+        }, 1500);
     }
 
     private void drawRect(List<VisionDetRet> results, int color) {
@@ -135,4 +129,34 @@ public class DetectAsyncTask extends AsyncTask<File, Void, List<VisionDetRet>> {
         mImageView.setImageBitmap(bitmap);
     }
 
+    public static final void initialize(final Context context) {
+        if (lock != null) {
+            synchronized (lock) {
+                if (lock != null) {
+                    lock = null;
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            // Copy file shape model just one time
+                            File modelFile = FileUtils.getFaceShapeModelFile();
+                            if (modelFile.exists()) {
+                                Timber.d("FaceDet: landmark model already in %s", modelFile);
+                            } else {
+                                Timber.d("FaceDet: copy landmark model to %s", modelFile);
+                                FileUtils.copyFromRaw(context, R.raw.shape_predictor_68_face_landmarks, modelFile);
+                            }
+                            // Instantiate FaceDet
+                            sFaceDet = new FaceDet(modelFile.getPath());
+                        }
+                    }).start();
+                }
+            }
+        }
+    }
+
+    public static void releaseDetector() {
+        if(sFaceDet != null){
+            sFaceDet.release();
+        }
+    }
 }

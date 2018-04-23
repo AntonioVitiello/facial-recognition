@@ -9,21 +9,21 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
 
-import av.demo.facereco.R;
-
 /**
  * Created by Antonio Vitiello on 20/04/2018.
  */
 
-public class PermissionDialog extends DialogFragment {
-    private static String ARG_PERMISSION = "permission";
+public class RationaleDialog extends DialogFragment {
+    private static final java.lang.String ARG_RATIONALE = "rationale_message";
+    private static String ARG_PERMISSION = "permission_string";
     private static final String ARG_PERMISSION_ID = "permission_id";
 
-    public static PermissionDialog newInstance(String permission, int permissionId) {
+    public static RationaleDialog newInstance(String permission, int permissionId, String rationale) {
         Bundle args = new Bundle();
         args.putString(ARG_PERMISSION, permission);
         args.putInt(ARG_PERMISSION_ID, permissionId);
-        PermissionDialog dialog = new PermissionDialog();
+        args.putString(ARG_RATIONALE, rationale);
+        RationaleDialog dialog = new RationaleDialog();
         dialog.setArguments(args);
         return dialog;
     }
@@ -34,10 +34,11 @@ public class PermissionDialog extends DialogFragment {
         Bundle arguments = getArguments();
         final String permission = arguments.getString(ARG_PERMISSION);
         final int permissionId = arguments.getInt(ARG_PERMISSION_ID);
+        final String rationale = arguments.getString(ARG_RATIONALE);
         final FragmentActivity parent = getActivity();
 
         return new AlertDialog.Builder(getActivity())
-                .setMessage(R.string.disk_request_permission)
+                .setMessage(rationale)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
