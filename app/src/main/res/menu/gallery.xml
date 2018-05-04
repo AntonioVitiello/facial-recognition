@@ -4,17 +4,23 @@
     <item
         android:id="@+id/login_mi"
         android:title="@string/login_label"
-        android:orderInCategory="100"
+        android:orderInCategory="10"
         app:showAsAction="never"/>
     <item
         android:id="@+id/personal_data_mi"
         android:title="@string/personal_data_label"
-        android:orderInCategory="200"
+        android:orderInCategory="20"
         app:showAsAction="never"/>
     <item
-        android:id="@+id/center_face"
+        android:id="@+id/detect_face"
         android:title="@string/personal_data_label"
         android:icon="@drawable/ic_center_face"
-        android:orderInCategory="300"
+        android:orderInCategory="30"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/recognize_dir"
+        android:title="@string/personal_data_label"
+        android:icon="@drawable/ic_splash_person"
+        android:orderInCategory="40"
         app:showAsAction="always"/>
 </menu>

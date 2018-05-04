@@ -44,6 +44,7 @@ public class ImageUtils {
         mPicasso.load(file)
                 .resize(getTargetMaxSize(), getTargetMaxSize())
                 .centerInside()
+                .transform(new GrayscaleTransformation())
                 .into(new Target() {
                     @Override
                     public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {

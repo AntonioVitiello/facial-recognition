@@ -15,7 +15,7 @@ import av.demo.facereco.adapters.GalleryPagerAdapter;
 import av.demo.facereco.detect.DetectAsyncTask;
 import av.demo.facereco.dialogs.ErrorDialog;
 import av.demo.facereco.dialogs.RationaleDialog;
-import av.demo.facereco.event.FaceCenterEvent;
+import av.demo.facereco.event.MenuTapEvent;
 import timber.log.Timber;
 
 public class GalleryActivity extends BaseActivity {
@@ -99,8 +99,12 @@ public class GalleryActivity extends BaseActivity {
                 finish();
                 break;
             }
-            case R.id.center_face: {
-                EventBus.getDefault().post(new FaceCenterEvent());
+            case R.id.detect_face: {
+                EventBus.getDefault().post(new MenuTapEvent(MenuTapEvent.DETECT_FACE));
+                break;
+            }
+            case R.id.recognize_dir: {
+                EventBus.getDefault().post(new MenuTapEvent(MenuTapEvent.RECOGNIZE_DIR));
                 break;
             }
             case android.R.id.home: {

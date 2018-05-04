@@ -21,7 +21,8 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.io.File;
 
 import av.demo.facereco.detect.DetectAsyncTask;
-import av.demo.facereco.event.FaceCenterEvent;
+import av.demo.facereco.detect.RecognizeDirTask;
+import av.demo.facereco.event.MenuTapEvent;
 import timber.log.Timber;
 
 
@@ -71,7 +72,7 @@ public class GalleryFragment extends Fragment {
     public void onResume() {
         super.onResume();
         EventBus eventBus = EventBus.getDefault();
-        if(!eventBus.isRegistered(this)){
+        if (!eventBus.isRegistered(this)) {
             eventBus.register(this);
             mDetectAsyncTask = null;
             loadPicture();
@@ -128,24 +129,39 @@ public class GalleryFragment extends Fragment {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onFaceCenterEvent(FaceCenterEvent event) {
-        if(!getUserVisibleHint()){
+    public void onMenuTapEvent(MenuTapEvent event) {
+        if (!getUserVisibleHint()) {
             return;
         }
-        if(mDetectAsyncTask != null) {
-            loadPicture();
-            mDetectAsyncTask = null;
-        } else {
-            faceDetect();
+        switch (event.getmItemId()) {
+            case MenuTapEvent.DETECT_FACE: {
+                if (mDetectAsyncTask != null) {
+                    loadPicture();
+                    mDetectAsyncTask = null;
+                } else {
+                    faceDetect();
+                }
+                break;
+            }
+            case MenuTapEvent.RECOGNIZE_DIR: {
+                Timber.e("AAA RECOGNIZE_DIR: TODO!");
+                break;
+            }
+            default:
+                Timber.e("Invalid menu item id: %s", event.getmItemId());
         }
     }
 
     /**
      * start Face Detection
      */
-    private void faceDetect(){
+    private void faceDetect() {
         mDetectAsyncTask = new DetectAsyncTask(getContext(), mPictureImageView);
         mDetectAsyncTask.execute(mPictures[0]);
+    }
+
+    private void recognizeDir() {
+        new RecognizeDirTask().execute();
     }
 
 }
