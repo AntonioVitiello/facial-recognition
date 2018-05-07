@@ -23,13 +23,16 @@ public class GrayscaleTransformation implements Transformation {
         int height = source.getHeight();
         Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 
+        // Create a paint object with 0 saturation (grey scale)
         ColorMatrix colorMatrix = new ColorMatrix();
         colorMatrix.setSaturation(0f);
         ColorMatrixColorFilter filter = new ColorMatrixColorFilter(colorMatrix);
 
+        // Prepare paint with grey-scale filter
         Paint paint = new Paint(ANTI_ALIAS_FLAG);
         paint.setColorFilter(filter);
 
+        // Draw picture
         Canvas canvas = new Canvas(bitmap);
         canvas.drawBitmap(source, 0, 0, paint);
 

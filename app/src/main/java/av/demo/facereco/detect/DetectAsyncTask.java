@@ -30,7 +30,7 @@ import timber.log.Timber;
 
 public class DetectAsyncTask extends AsyncTask<File, Void, List<VisionDetRet>> {
     public static final double EYE_CLOSED_THRESHOLD = 0.195;
-    private static final double MOUTH_CLOSED_THRESHOLD = 0.195;
+    private static final double MOUTH_CLOSED_THRESHOLD = 0.141; //old: 0.195;
     private final Context mContext;
     private final ImageView mImageView;
     private ProgressDialog mDialog;
@@ -48,14 +48,13 @@ public class DetectAsyncTask extends AsyncTask<File, Void, List<VisionDetRet>> {
     }
 
     @Override
-    protected List<VisionDetRet> doInBackground(File... pictureFiles) {
+    protected List<VisionDetRet> doInBackground(File... pictures) {
         if (sFaceDet == null) {
             Timber.w("FaceDet: detector not initialized.");
             return new ArrayList<>();
         }
-        File pictureFile = pictureFiles[0];
-        Timber.d("FaceDet: with file %s", pictureFile);
-        List<VisionDetRet> faceList = sFaceDet.detect(pictureFile.getPath());
+        Timber.d("FaceDet: with file %s", pictures[0]);
+        List<VisionDetRet> faceList = sFaceDet.detect(pictures[0].getPath());
         Timber.d("FaceDet: %d faces detected.", faceList.size());
         return faceList;
     }
@@ -119,23 +118,17 @@ public class DetectAsyncTask extends AsyncTask<File, Void, List<VisionDetRet>> {
             bounds.bottom = (int) (visionDetRet.getBottom());
             canvas.drawRect(bounds, paint);
 
-            // Get landmark
+            // Get landmark and draw them
             ArrayList<Point> landmarks = visionDetRet.getFaceLandmarks();
-
-            for (int i = 0; i < 68; i++) {
+            for (int i = 0; i < landmarks.size(); i++) {
                 paint.setColor(getLandmarkColorByIndex(i));
                 Point point = landmarks.get(i);
                 int pointX = (int) (point.x);
                 int pointY = (int) (point.y);
                 canvas.drawCircle(pointX, pointY, 2, paint);
             }
-/*
-            for (Point point : landmarks) {
-                int pointX = (int) (point.x);
-                int pointY = (int) (point.y);
-                canvas.drawCircle(pointX, pointY, 2, paint);
-            }
-*/
+
+            // Add text for open/close mouth/eyes
             Paint textPaint = new Paint();
             textPaint.setColor(color);
             textPaint.setTextSize(16.0f);
@@ -319,7 +312,7 @@ public class DetectAsyncTask extends AsyncTask<File, Void, List<VisionDetRet>> {
     }
 
     private double getMouthAspectRatio(Point p1, Point p2, Point p3, Point p4, Point p5, Point p6, Point p7, Point p8) {
-        return (euclideanDistance(p2, p8) + euclideanDistance(p3, p7) + euclideanDistance(p4, p6)) / (euclideanDistance(p1, p5));
+        return (euclideanDistance(p2, p8) + euclideanDistance(p3, p7) + euclideanDistance(p4, p6)) / (2.0 * euclideanDistance(p1, p5));
     }
 
 }

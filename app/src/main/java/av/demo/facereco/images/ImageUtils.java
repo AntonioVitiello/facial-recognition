@@ -40,7 +40,12 @@ public class ImageUtils {
         return sInstance.mTargetMaxSize;
     }
 
-    public void resizePicture(final File file, final OnImageReady onImageReady) {
+    /**
+     * Reload picture, caches it, resize and save in gray scale. This must happens in main-Thread!
+     * @param file picture
+     * @param onImageReady Callback
+     */
+    public void transformPicture(final File file, final OnImageReady onImageReady) {
         mPicasso.load(file)
                 .resize(getTargetMaxSize(), getTargetMaxSize())
                 .centerInside()

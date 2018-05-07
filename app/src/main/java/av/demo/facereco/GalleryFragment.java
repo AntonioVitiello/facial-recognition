@@ -19,6 +19,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
+import java.util.Arrays;
 
 import av.demo.facereco.detect.DetectAsyncTask;
 import av.demo.facereco.detect.RecognizeDirTask;
@@ -31,7 +32,7 @@ import timber.log.Timber;
  */
 
 public class GalleryFragment extends Fragment {
-    private static final String PICTURE_FILE_KEY = "picture_file_key";
+    private static final String PICTURE_FILES_KEY = "picture_files_key";
     private ImageView mPictureImageView;
     private File[] mPictures;
     private Picasso mPicasso;
@@ -44,10 +45,11 @@ public class GalleryFragment extends Fragment {
      * Returns a new instance of this fragment for the given section
      * number.
      */
-    public static GalleryFragment newInstance(File[] pictureFiles) {
+    public static GalleryFragment newInstance(File[] pictures, int startIndex) {
         GalleryFragment fragment = new GalleryFragment();
         Bundle args = new Bundle();
-        args.putSerializable(PICTURE_FILE_KEY, pictureFiles);
+        File[] files = Arrays.copyOfRange(pictures, startIndex, Math.min(pictures.length, startIndex + 1));
+        args.putSerializable(PICTURE_FILES_KEY, files);
         fragment.setArguments(args);
         return fragment;
     }
@@ -63,7 +65,7 @@ public class GalleryFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_gallery, container, false);
-        mPictures = (File[]) getArguments().getSerializable(PICTURE_FILE_KEY);
+        mPictures = (File[]) getArguments().getSerializable(PICTURE_FILES_KEY);
         mPictureImageView = rootView.findViewById(R.id.picture_iv);
         return rootView;
     }
@@ -93,9 +95,7 @@ public class GalleryFragment extends Fragment {
                 .into(mPictureImageView, new Callback() {
                     @Override
                     public void onSuccess() {
-                        if (mPictures.length > 1) {
-                            cacheNextPicture();
-                        }
+                        cacheNextPicture();
                     }
 
                     @Override
@@ -106,6 +106,10 @@ public class GalleryFragment extends Fragment {
     }
 
     private void cacheNextPicture() {
+        if (mPictures.length < 2) { //Nothing to cache
+            return;
+        }
+
         int targetMaxSize = MyApplication.getIntResource(R.integer.image_target_max_size);
         mPicasso.load(mPictures[1])
                 .resize(targetMaxSize, targetMaxSize)

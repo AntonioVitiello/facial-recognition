@@ -32,9 +32,9 @@ public class PictureSaverTask extends AsyncTask<ImageBox, Void, File> {
     @Override
     protected void onPostExecute(final File file) {
         mOutputFile = file;
-        // Load, resize and cache picture file and save again. This must happens in main-Thread!
+        // Reload picture, caches it, resize and save in gray scale. This must happens in main-Thread!
         ImageUtils imageUtils = ImageUtils.getInstance();
-        imageUtils.resizePicture(file, new ImageUtils.OnImageReady() {
+        imageUtils.transformPicture(file, new ImageUtils.OnImageReady() {
             @Override
             public void setBitmap(Bitmap bitmap) {
                 saveBitmap(file, bitmap);
@@ -86,8 +86,8 @@ public class PictureSaverTask extends AsyncTask<ImageBox, Void, File> {
                     if (output != null) {
                         try {
                             output.close();
-                            Timber.d("Picture saver: Bitmap resized[%2$dH,%3$dW] and saved in: %1$s",
-                                    outputFile, bitmap.getHeight(), bitmap.getWidth());
+                            Timber.d("Picture saver: Bitmap resized[%dH,%dW] and saved in: %s",
+                                    bitmap.getHeight(), bitmap.getWidth(), outputFile);
                         } catch (IOException exc) {
                             Timber.e(exc, "Picture saver: Error while closing bitmap output stream: " + outputFile);
                         }
