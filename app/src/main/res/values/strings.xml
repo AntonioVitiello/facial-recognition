@@ -62,6 +62,8 @@
 
     <string name="self_picture">Self picture</string>
     <string name="disk_request_permission">Please grant disk write permission to allow face detection from picture file.</string>
-    <string name="disk_denied_permission">Sorry disk write permission is required for this application to work!</string>
+    <string name="disk_denied_permission">Sorry disk access permission is required for this application to work!</string>
+    <string name="camera_request_permission">Please grant camera write permission to allow face detection.</string>
+    <string name="camera_denied_permission">Sorry camera permission is required for this application to work!</string>
 
 </resources>

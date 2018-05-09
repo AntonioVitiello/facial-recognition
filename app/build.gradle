@@ -57,5 +57,7 @@ dependencies {
     implementation 'com.squareup.picasso:picasso:2.71828'
     // greenrobot EventBus
     implementation 'org.greenrobot:eventbus:3.1.1'
+    // Fotoapparat
+    implementation 'io.fotoapparat.fotoapparat:library:2.2.0'
 
 }

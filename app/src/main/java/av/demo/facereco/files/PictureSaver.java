@@ -1,7 +1,6 @@
 package av.demo.facereco.files;
 
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -10,60 +9,44 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import av.demo.facereco.MyApplication;
-import av.demo.facereco.images.ImageBox;
 import av.demo.facereco.images.ImageUtils;
+import io.fotoapparat.result.PendingResult;
+import io.fotoapparat.result.PhotoResult;
+import io.fotoapparat.result.WhenDoneListener;
+import kotlin.Unit;
 import timber.log.Timber;
 
 /**
  * Created by Antonio Vitiello on 17/04/2018.
  */
 
-public class PictureSaverTask extends AsyncTask<ImageBox, Void, File> {
+public class PictureSaver {
     private static final SimpleDateFormat mDateFormat = new SimpleDateFormat("yyMMdd_HHmmss");
     private File mOutputFile;
 
+    public void saveToFile(PhotoResult photoResult) {
+        mOutputFile = getOutputFile();
 
-    @Override
-    protected File doInBackground(ImageBox... imageBoxes) {
-        // Save picture file full-size
-        return saveImage(imageBoxes[0].getBytes());
-    }
-
-    @Override
-    protected void onPostExecute(final File file) {
-        mOutputFile = file;
-        // Reload picture, caches it, resize and save in gray scale. This must happens in main-Thread!
-        ImageUtils imageUtils = ImageUtils.getInstance();
-        imageUtils.transformPicture(file, new ImageUtils.OnImageReady() {
+        // First save picture file at full-size
+        PendingResult<Unit> unitPendingResult = photoResult.saveToFile(mOutputFile);
+        unitPendingResult.whenDone(new WhenDoneListener<Unit>() {
             @Override
-            public void setBitmap(Bitmap bitmap) {
-                saveBitmap(file, bitmap);
+            public void whenDone(Unit unit) {
+                Timber.d("Picture file saved in %s", mOutputFile);
+                ImageUtils imageUtils = ImageUtils.getInstance();
+                imageUtils.transformPicture(mOutputFile, new ImageUtils.OnImageReady() {
+                    @Override
+                    public void setBitmap(final Bitmap bitmap) {
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                saveBitmap(mOutputFile, bitmap);
+                            }
+                        }).start();
+                    }
+                });
             }
         });
-
-    }
-
-    private File saveImage(byte[] bytes) {
-        FileOutputStream output = null;
-        File file = null;
-        try {
-            file = getOutputFile();
-            output = new FileOutputStream(file);
-            output.write(bytes);
-            output.flush();
-        } catch (Exception exc) {
-            Timber.e(exc, "Picture saver: Error while saving image: " + file);
-        } finally {
-            if (output != null) {
-                try {
-                    output.close();
-                    Timber.d("Picture saver: Picture pre-saved in: %s", file);
-                } catch (IOException exc) {
-                    Timber.e(exc, "Picture saver: Error while closing image output stream: " + file);
-                }
-            }
-        }
-        return file;
     }
 
     private File getOutputFile() {
@@ -97,6 +80,29 @@ public class PictureSaverTask extends AsyncTask<ImageBox, Void, File> {
         }).start();
     }
 
+    private File saveImageRaw(byte[] bytes) {
+        FileOutputStream output = null;
+        File file = null;
+        try {
+            file = getOutputFile();
+            output = new FileOutputStream(file);
+            output.write(bytes);
+            output.flush();
+        } catch (Exception exc) {
+            Timber.e(exc, "Picture saver: Error while saving image: " + file);
+        } finally {
+            if (output != null) {
+                try {
+                    output.close();
+                    Timber.d("Picture saver: Picture pre-saved in: %s", file);
+                } catch (IOException exc) {
+                    Timber.e(exc, "Picture saver: Error while closing image output stream: " + file);
+                }
+            }
+        }
+        return file;
+    }
+
     public void cleanOutputFile() {
         if (mOutputFile != null && mOutputFile.exists()) {
             try {
@@ -112,15 +118,6 @@ public class PictureSaverTask extends AsyncTask<ImageBox, Void, File> {
                         Timber.e(e, "Picture saver: Error while setting deleteOnExit on file: %s", mOutputFile);
                     }
                 }
-            }
-        }
-    }
-
-    public void stop() {
-        if(getStatus() != AsyncTask.Status.FINISHED) {
-            Timber.w("Picture saver: stopping task!");
-            if(cancel(true)){
-                cleanOutputFile();
             }
         }
     }
