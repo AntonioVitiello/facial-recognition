@@ -57,5 +57,6 @@ dependencies {
     implementation 'com.squareup.picasso:picasso:2.71828'
     // greenrobot EventBus
     implementation 'org.greenrobot:eventbus:3.1.1'
-
+    // Google Mobile Vision
+    implementation 'com.google.android.gms:play-services-vision:15.0.2'
 }

@@ -56,6 +56,8 @@
     <string name="gallery_label">Gallery</string>
     <string name="login_label">Login</string>
     <string name="personal_data_label">Profile</string>
+    <string name="detect_face_label">Detect</string>
+    <string name="recognize_face_label">Recognize</string>
 
     <!--Picture file extension-->
     <string name="image_extension">.jpg</string>

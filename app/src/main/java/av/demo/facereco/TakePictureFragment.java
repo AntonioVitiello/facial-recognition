@@ -1,5 +1,6 @@
 package av.demo.facereco;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -118,6 +119,9 @@ public class TakePictureFragment extends Fragment implements Timer.Subscriber {
     }
 
     public void capturePicture() {
+        if(mPictureSaverTask != null && mPictureSaverTask.getStatus() == AsyncTask.Status.RUNNING) {
+            return;
+        }
         mCameraView.captureImage(new CameraKitEventCallback<CameraKitImage>() {
             @Override
             public void callback(CameraKitImage image) {
@@ -129,9 +133,6 @@ public class TakePictureFragment extends Fragment implements Timer.Subscriber {
 
     private void savePicture(byte[] jpeg){
         Timber.d("Save picture request");
-        if(mPictureSaverTask != null) {
-            mPictureSaverTask.stop();
-        }
         mPictureSaverTask = new PictureSaverTask();
         mPictureSaverTask.execute(new ImageBox(jpeg));
     }

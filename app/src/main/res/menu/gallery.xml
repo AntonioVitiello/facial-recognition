@@ -13,14 +13,14 @@
         app:showAsAction="never"/>
     <item
         android:id="@+id/detect_face"
-        android:title="@string/personal_data_label"
+        android:title="@string/detect_face_label"
         android:icon="@drawable/ic_center_face"
         android:orderInCategory="30"
         app:showAsAction="always"/>
     <item
         android:id="@+id/recognize_dir"
-        android:title="@string/personal_data_label"
+        android:title="@string/recognize_face_label"
         android:icon="@drawable/ic_splash_person"
         android:orderInCategory="40"
-        app:showAsAction="always"/>
+        app:showAsAction="never"/>
 </menu>

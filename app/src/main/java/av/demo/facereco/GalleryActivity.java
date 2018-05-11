@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -104,6 +105,7 @@ public class GalleryActivity extends BaseActivity {
                 break;
             }
             case R.id.recognize_dir: {
+                Toast.makeText(this, "TODO...", Toast.LENGTH_SHORT).show();
                 EventBus.getDefault().post(new MenuTapEvent(MenuTapEvent.RECOGNIZE_DIR));
                 break;
             }

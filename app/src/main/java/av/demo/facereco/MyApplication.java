@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 
 import java.io.File;
 
+import av.demo.facereco.detect.DetectAsyncTask;
 import av.demo.facereco.logger.TimberLogImplementation;
 
 /**
@@ -23,6 +24,9 @@ public class MyApplication extends Application {
 
         // Timber initialization
         TimberLogImplementation.init(getStringResource(R.string.app_name));
+
+        // Face detection initialization
+        DetectAsyncTask.initialize(this);
     }
 
     @NonNull

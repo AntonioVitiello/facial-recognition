@@ -22,6 +22,10 @@ public class PictureSaverTask extends AsyncTask<ImageBox, Void, File> {
     private static final SimpleDateFormat mDateFormat = new SimpleDateFormat("yyMMdd_HHmmss");
     private File mOutputFile;
 
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+    }
 
     @Override
     protected File doInBackground(ImageBox... imageBoxes) {
@@ -40,7 +44,6 @@ public class PictureSaverTask extends AsyncTask<ImageBox, Void, File> {
                 saveBitmap(file, bitmap);
             }
         });
-
     }
 
     private File saveImage(byte[] bytes) {
