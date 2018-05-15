@@ -2,31 +2,35 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:visibility="invisible">
+    android:layout_height="wrap_content">
 
-    <com.wonderkiln.camerakit.CameraView
+    <!-- Camera -->
+    <com.otaliastudios.cameraview.CameraView
         android:id="@+id/camera"
         android:layout_width="1dp"
         android:layout_height="1dp"
-        android:adjustViewBounds="true"
-        android:visibility="invisible"
-        app:ckDoubleTapToToggleFacing="false"
-        app:ckFacing="front"
-        app:ckPinchToZoom="false"
-        app:ckPermissions="picture"
-        app:ckCropOutput="false"
-        app:ckFlash="off"
-        app:ckFocus="off"
-        app:ckJpegQuality="100"
-        app:ckMethod="still"
-        app:ckVideoQuality="highest"
-        app:ckZoom="1.0" />
+        android:keepScreenOn="true"
+        app:cameraAudio="off"
+        app:cameraCropOutput="false"
+        app:cameraFacing="front"
+        app:cameraFlash="off"
+        app:cameraGestureLongTap="none"
+        app:cameraGesturePinch="none"
+        app:cameraGestureScrollHorizontal="none"
+        app:cameraGestureScrollVertical="none"
+        app:cameraGestureTap="none"
+        app:cameraGrid="off"
+        app:cameraJpegQuality="100"
+        app:cameraPictureSizeBiggest="true"
+        app:cameraPlaySounds="false"
+        app:cameraSessionType="picture" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@android:color/white"
-        android:foreground="@android:color/white" />
+    <!--
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/white"
+            android:foreground="@android:color/white" />
+    -->
 
 </FrameLayout>

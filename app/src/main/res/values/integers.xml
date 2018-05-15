@@ -10,6 +10,7 @@
     <integer name="file_count_retain">20</integer>
 
     <!--Image picture max dimensions (Width or Height) in pixel-->
-    <integer name="image_target_max_size">512</integer>
-
+    <!--<integer name="image_target_max_size">512</integer>-->
+    <!--<integer name="image_target_max_size">320</integer>-->
+    <integer name="image_target_max_size">640</integer>
 </resources>

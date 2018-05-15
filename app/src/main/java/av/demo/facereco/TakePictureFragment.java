@@ -1,5 +1,7 @@
 package av.demo.facereco;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -9,9 +11,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.wonderkiln.camerakit.CameraKitEventCallback;
-import com.wonderkiln.camerakit.CameraKitImage;
-import com.wonderkiln.camerakit.CameraView;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.listener.DexterError;
+import com.karumi.dexter.listener.PermissionRequestErrorListener;
+import com.karumi.dexter.listener.single.DialogOnDeniedPermissionListener;
+import com.otaliastudios.cameraview.CameraException;
+import com.otaliastudios.cameraview.CameraListener;
+import com.otaliastudios.cameraview.CameraOptions;
+import com.otaliastudios.cameraview.CameraView;
 
 import av.demo.facereco.files.PictureDirCleanerTask;
 import av.demo.facereco.files.PictureSaverTask;
@@ -31,6 +38,7 @@ public class TakePictureFragment extends Fragment implements Timer.Subscriber {
     private Timer mFileCleanerTimer;
     private PictureSaverTask mPictureSaverTask;
     private PictureDirCleanerTask mPictureDirCleanerTask;
+    private boolean mCapturingPicture;
 
     public TakePictureFragment() {
     }
@@ -67,31 +75,39 @@ public class TakePictureFragment extends Fragment implements Timer.Subscriber {
 
     private void initCamera(View rootView) {
         mCameraView = rootView.findViewById(R.id.camera);
-    }
+        mCameraView.addCameraListener(new CameraListener() {
+            @Override
+            public void onCameraOpened(CameraOptions options) {
+                super.onCameraOpened(options);
+            }
 
-    public void startCamera() {
-        Timber.d("Camera: starting.");
-        try {
-            mCameraView.start();
-        } catch (final Exception exc) {
-            Timber.e(exc, "Error while starting capture image.");
-        }
-    }
+            @Override
+            public void onCameraClosed() {
+                super.onCameraClosed();
+            }
 
-    public void stopCamera() {
-        Timber.d("Camera: stopping.");
-        try {
-            mCameraView.stop();
-        } catch (final Exception exc) {
-            Timber.e(exc, "Error while stopping camera.");
-        }
-        super.onPause();
+            @Override
+            public void onCameraError(@NonNull CameraException exception) {
+                super.onCameraError(exception);
+            }
+
+            @Override
+            public void onPictureTaken(byte[] jpeg) {
+                savePicture(jpeg);
+            }
+
+            @Override
+            public void onOrientationChanged(int orientation) {
+                super.onOrientationChanged(orientation);
+            }
+        });
+
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        startCamera();
+        mCameraView.start();
         mTakePictureTimer.start();
         mFileCleanerTimer.start();
     }
@@ -100,8 +116,33 @@ public class TakePictureFragment extends Fragment implements Timer.Subscriber {
     public void onPause() {
         mTakePictureTimer.stop();
         mFileCleanerTimer.stop();
-        stopCamera();
+        mCameraView.stop();
         super.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mCameraView.destroy();
+    }
+
+    /**
+     * CamerView implements checkPermissions in his start() method so jus need manage onRequestPermissionsResult
+     *
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        boolean valid = true;
+        for (int grantResult : grantResults) {
+            valid = valid && grantResult == PackageManager.PERMISSION_GRANTED;
+        }
+        if (valid && !mCameraView.isStarted()) {
+            mCameraView.start();
+        }
     }
 
     @Override
@@ -118,32 +159,59 @@ public class TakePictureFragment extends Fragment implements Timer.Subscriber {
         }
     }
 
-    public void capturePicture() {
-        if(mPictureSaverTask != null && mPictureSaverTask.getStatus() == AsyncTask.Status.RUNNING) {
-            return;
-        }
-        mCameraView.captureImage(new CameraKitEventCallback<CameraKitImage>() {
-            @Override
-            public void callback(CameraKitImage image) {
-                byte[] jpeg = image.getJpeg();
-                savePicture(jpeg);
-            }
-        });
+    private boolean isSavingPicture() {
+        return mPictureSaverTask != null && mPictureSaverTask.getStatus() == AsyncTask.Status.RUNNING;
     }
 
-    private void savePicture(byte[] jpeg){
-        Timber.d("Save picture request");
+    public void capturePicture() {
+        if (mCapturingPicture || isSavingPicture()) {
+            return;
+        }
+        mCapturingPicture = true;
+        mCameraView.capturePicture();
+    }
+
+    private void savePicture(byte[] jpeg) {
+        mCapturingPicture = false;
         mPictureSaverTask = new PictureSaverTask();
         mPictureSaverTask.execute(new ImageBox(jpeg));
     }
 
     private void cleanPictureDir() {
         Timber.d("Clean picture dir request");
-        if(mPictureDirCleanerTask != null) {
+        if (mPictureDirCleanerTask != null) {
             mPictureDirCleanerTask.stop();
         }
         mPictureDirCleanerTask = new PictureDirCleanerTask();
         mPictureDirCleanerTask.execute();
+    }
+
+    /**
+     * NOT USED!
+     * CameraView alredy managed in from CameraView and onRequestPermissionsResult
+     * Use Dexter library to manage Permissions
+     *
+     * @see <a href="https://github.com/Karumi/Dexter</a>
+     */
+    private void permissionsMgr() {
+        DialogOnDeniedPermissionListener dialogListener = DialogOnDeniedPermissionListener.Builder
+                .withContext(getContext())
+                .withTitle("Camera permission")
+                .withMessage("Camera permission is needed to take pictures of your cat")
+                .withButtonText(android.R.string.ok)
+                .withIcon(R.drawable.ic_announcement)
+                .build();
+
+        Dexter.withActivity(getActivity())
+                .withPermission(Manifest.permission.CAMERA)
+                .withListener(dialogListener)
+                .withErrorListener(new PermissionRequestErrorListener() {
+                    @Override
+                    public void onError(DexterError error) {
+                        Timber.e("Permissions error: %s", error.toString());
+                    }
+                })
+                .check();
     }
 
 }

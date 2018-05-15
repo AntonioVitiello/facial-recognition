@@ -30,8 +30,10 @@ import timber.log.Timber;
  */
 
 public class DetectAsyncTask extends AsyncTask<File, Void, List<VisionDetRet>> {
-    public static final double EYE_CLOSED_THRESHOLD = 0.195;
-    private static final double MOUTH_CLOSED_THRESHOLD = 0.141; //old: 0.195;
+//    public static final double EYE_CLOSED_THRESHOLD = 0.195;
+//    private static final double MOUTH_CLOSED_THRESHOLD = 0.141; //old: 0.195;
+    public static final double EYE_CLOSED_THRESHOLD = 0.27;
+    private static final double MOUTH_CLOSED_THRESHOLD = 0.11;
     private final Context mContext;
     private final ImageView mImageView;
     private ProgressDialog mDialog;
@@ -140,6 +142,7 @@ public class DetectAsyncTask extends AsyncTask<File, Void, List<VisionDetRet>> {
             bounds.right = (int) (visionDetRet.getRight());
             bounds.bottom = (int) (visionDetRet.getBottom());
             canvas.drawRect(bounds, paint);
+            Timber.d("Detected FaceRect[W=%d,H=%d]", bounds.width(), bounds.height());
 
             // Get landmark and draw them
             ArrayList<Point> landmarks = visionDetRet.getFaceLandmarks();
@@ -195,46 +198,6 @@ public class DetectAsyncTask extends AsyncTask<File, Void, List<VisionDetRet>> {
             return Color.YELLOW;
         }
         return Color.BLACK;
-    }
-
-    // TODO: 04/05/2018 Just for tests, clean
-    private List<Landmark> buildLandmarks() {
-        List<Landmark> landmarks = new ArrayList<>();
-
-        landmarks.add(new Landmark.Builder()
-                .points(new Point(63, 264), new Point(65, 280), new Point(68, 297), new Point(71, 313), new Point(76, 330), new Point(84, 345), new Point(94, 358), new Point(108, 369), new Point(124, 372), new Point(143, 369), new Point(159, 359), new Point(173, 347), new Point(183, 332), new Point(190, 315), new Point(193, 297), new Point(195, 279), new Point(195, 260), new Point(67, 249), new Point(72, 238), new Point(84, 234), new Point(97, 234), new Point(110, 239), new Point(124, 239), new Point(137, 233), new Point(152, 231), new Point(167, 235), new Point(176, 246), new Point(117, 250), new Point(117, 259), new Point(116, 269), new Point(115, 280), new Point(105, 293), new Point(111, 295), new Point(117, 297), new Point(125, 295), new Point(132, 293), new Point(81, 257), new Point(87, 253), new Point(94, 253), new Point(102, 256), new Point(94, 259), new Point(87, 259), new Point(138, 255), new Point(144, 251), new Point(152, 252), new Point(160, 255), new Point(153, 258), new Point(145, 257), new Point(97, 323), new Point(106, 319), new Point(112, 316), new Point(118, 318), new Point(124, 316), new Point(134, 319), new Point(146, 323), new Point(134, 328), new Point(125, 329), new Point(119, 329), new Point(113, 329), new Point(106, 328), new Point(101, 323), new Point(113, 321), new Point(118, 322), new Point(124, 321), new Point(142, 323), new Point(125, 322), new Point(118, 323), new Point(113, 322))
-                .label("180419_000013.jpg")
-                .build());
-
-        landmarks.add(new Landmark.Builder()
-                .points(new Point(47, 280), new Point(49, 296), new Point(53, 311), new Point(58, 327), new Point(64, 342), new Point(72, 356), new Point(83, 368), new Point(96, 376), new Point(112, 378), new Point(130, 374), new Point(146, 364), new Point(161, 352), new Point(171, 335), new Point(176, 316), new Point(177, 295), new Point(176, 274), new Point(175, 253), new Point(45, 265), new Point(48, 255), new Point(57, 251), new Point(68, 251), new Point(79, 254), new Point(90, 250), new Point(102, 242), new Point(117, 237), new Point(133, 237), new Point(146, 244), new Point(86, 264), new Point(86, 274), new Point(86, 283), new Point(86, 294), new Point(81, 309), new Point(86, 310), new Point(93, 311), new Point(100, 307), new Point(108, 305), new Point(58, 276), new Point(62, 272), new Point(69, 269), new Point(77, 270), new Point(71, 275), new Point(64, 277), new Point(109, 264), new Point(116, 260), new Point(123, 258), new Point(132, 259), new Point(125, 263), new Point(117, 264), new Point(82, 339), new Point(86, 334), new Point(90, 329), new Point(96, 330), new Point(101, 327), new Point(111, 329), new Point(126, 331), new Point(115, 337), new Point(106, 339), new Point(101, 341), new Point(95, 342), new Point(89, 342), new Point(85, 338), new Point(92, 335), new Point(98, 335), new Point(102, 333), new Point(121, 332), new Point(104, 333), new Point(99, 334), new Point(93, 335))
-                .label("180419_000012")
-                .build());
-
-        return landmarks;
-    }
-
-    private void claculateFaceDistance1() {
-        List<Landmark> landmarks = buildLandmarks();
-        for (int i = 0; i < landmarks.size(); i++) {
-            Landmark l1 = landmarks.get(i);
-            for (int j = i + 1; j < landmarks.size(); j++) {
-                Landmark l2 = landmarks.get(j);
-                int countOk = checkDistance(l1.getPoints(), l2.getPoints(), 60);
-                Timber.e("AAA [%d] distance[%s,%s] countOk=%d", i, l1.getLabel(), l2.getLabel(), countOk);
-            }
-        }
-    }
-
-    private int checkDistance(Point[] p1, Point[] p2, int threshold) {
-        int countUnder = 0;
-        for (int i = 0; i < p1.length; i++) {
-            double distance = euclideanDistance(p1[i], p2[i]);
-            if (distance < threshold) {
-                ++countUnder;
-            }
-        }
-        return countUnder;
     }
 
     public double euclideanDistance(Point p1, Point p2) {
