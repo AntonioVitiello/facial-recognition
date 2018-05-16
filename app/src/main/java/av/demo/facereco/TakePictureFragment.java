@@ -53,14 +53,14 @@ public class TakePictureFragment extends Fragment implements Timer.Subscriber {
         // Start timer to take picture
         mTakePictureTimer = new Timer.Builder()
                 .subscriber(this)
-                .delay(getResources().getInteger(R.integer.take_picture_delay_millisec))
+                .delay(getResources().getInteger(R.integer.take_picture_interval_millisec))
                 .alarmId(TAKE_PICTURE_ALARM_ID)
                 .build();
 
         // Start timer to clean piture dir
         mFileCleanerTimer = new Timer.Builder()
                 .subscriber(this)
-                .delay(getResources().getInteger(R.integer.file_cleaner_delay_millisec))
+                .delay(getResources().getInteger(R.integer.files_cleaner_interval_millisec))
                 .alarmId(FILE_CLEANER_ALARM_ID)
                 .build();
     }

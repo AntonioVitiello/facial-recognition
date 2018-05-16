@@ -84,9 +84,6 @@ public class Timer {
         private long mDelay;
         private int mAlarmId;
 
-        public Builder() {
-        }
-
         public Builder subscriber(Subscriber subscriber) {
             mSubscriber = subscriber;
             return this;

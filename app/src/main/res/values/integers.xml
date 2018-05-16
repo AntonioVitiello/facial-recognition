@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--interval delay between pictures in milliseconds-->
-    <integer name="take_picture_delay_millisec">5000</integer>
+    <integer name="take_picture_interval_millisec">5000</integer>
 
     <!--interval delay between picture file cleaning in milliseconds-->
-    <integer name="file_cleaner_delay_millisec">60000</integer>
+    <integer name="files_cleaner_interval_millisec">60000</integer>
 
     <!--Max number of files to retain in FS-->
     <integer name="file_count_retain">20</integer>

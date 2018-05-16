@@ -21,8 +21,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import av.demo.facereco.R;
-import av.demo.facereco.files.FileUtils;
 import timber.log.Timber;
 
 /**
@@ -32,38 +30,14 @@ import timber.log.Timber;
 public class DetectAsyncTask extends AsyncTask<File, Void, List<VisionDetRet>> {
 //    public static final double EYE_CLOSED_THRESHOLD = 0.195;
 //    private static final double MOUTH_CLOSED_THRESHOLD = 0.141; //old: 0.195;
-    public static final double EYE_CLOSED_THRESHOLD = 0.27;
-    private static final double MOUTH_CLOSED_THRESHOLD = 0.11;
-    private final Context mContext;
+    public static final double EYE_CLOSED_THRESHOLD = 0.25;
+    private static final double MOUTH_CLOSED_THRESHOLD = 0.085;
+    private Context mContext;
     private final ImageView mImageView;
     private ProgressDialog mDialog;
-    private static FaceDet sFaceDet;
-    private static Object lock = new Object();
+    private Paint mFacePaint;
+    private Paint mLandmardkPaint;
 
-    public static final void initialize(final Context context) {
-        if (sFaceDet == null) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    synchronized (lock) {
-                        if (sFaceDet == null) {
-                            // Copy file shape model just one time
-                            File modelFile = FileUtils.getFaceShapeModelFile();
-                            if (modelFile.exists()) {
-                                Timber.d("FaceDet: landmark model already in %s", modelFile);
-                            } else {
-                                Timber.d("FaceDet: copy landmark model to %s", modelFile);
-                                FileUtils.copyFromRaw(context, R.raw.shape_predictor_68_face_landmarks, modelFile);
-                            }
-                            // Instantiate FaceDet
-                            sFaceDet = new FaceDet(modelFile.getPath());
-                        }
-                    }
-                }
-            }).start();
-
-        }
-    }
 
     public DetectAsyncTask(Context context, ImageView imageView) {
         mContext = context;
@@ -77,24 +51,22 @@ public class DetectAsyncTask extends AsyncTask<File, Void, List<VisionDetRet>> {
 
     @Override
     protected List<VisionDetRet> doInBackground(File... pictures) {
-        synchronized (lock) {
-            Timber.d("FaceDet: with file %s", pictures[0]);
-            List<VisionDetRet> faceList = sFaceDet.detect(pictures[0].getPath());
-            Timber.d("FaceDet: %d faces detected.", faceList.size());
-            return faceList;
-        }
+        initPainters();
+        Timber.d("FaceDet: detecting face in %s", pictures[0]);
+        // start face detector
+        FaceDet faceDet = DetectorMgr.getInstance().getFaceDet();
+        List<VisionDetRet> faceList = faceDet.detect(pictures[0].getPath());
+        Timber.d("FaceDet: %d faces detected.", faceList.size());
+        // draw face landmarks
+        drawRect(faceList);
+        return faceList;
     }
 
     @Override
     protected void onPostExecute(List<VisionDetRet> faceList) {
         hideProgressDialog();
-        if (faceList.size() == 0) {
-            Toast.makeText(mContext, "No face detected.", Toast.LENGTH_LONG).show();
-            Timber.d("No face detected.");
-        } else {
-            // draw face landmarks
-            drawRect(faceList, Color.GREEN);
-        }
+        String msg = faceList.size() != 0 ?  faceList.size() + " face detected." : "No face detected.";
+        Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
     }
 
     private void showProgressDialog() {
@@ -107,6 +79,17 @@ public class DetectAsyncTask extends AsyncTask<File, Void, List<VisionDetRet>> {
         }
     }
 
+    private void initPainters() {
+        mFacePaint = new Paint();
+        mFacePaint.setColor(Color.GREEN);
+        mFacePaint.setStrokeWidth(2);
+        mFacePaint.setStyle(Paint.Style.STROKE);
+        mFacePaint.setTextSize(16.0f);
+        mLandmardkPaint = new Paint();
+        mLandmardkPaint.setStrokeWidth(1);
+        mLandmardkPaint.setStyle(Paint.Style.FILL);
+    }
+
     private void showDialogNotReady() {
         mDialog = ProgressDialog.show(mContext, "Wait", "Face detection initializing...", true);
         new Handler().postDelayed(new Runnable() {
@@ -117,7 +100,7 @@ public class DetectAsyncTask extends AsyncTask<File, Void, List<VisionDetRet>> {
         }, 1500);
     }
 
-    private void drawRect(List<VisionDetRet> results, int color) {
+    private void drawRect(List<VisionDetRet> results) {
         Bitmap bitmap = ((BitmapDrawable) mImageView.getDrawable()).getBitmap();
         android.graphics.Bitmap.Config bitmapConfig = bitmap.getConfig();
         // set default bitmap config if none
@@ -129,10 +112,6 @@ public class DetectAsyncTask extends AsyncTask<File, Void, List<VisionDetRet>> {
 
         // Create canvas to draw
         Canvas canvas = new Canvas(bitmap);
-        Paint paint = new Paint();
-        paint.setColor(color);
-        paint.setStrokeWidth(2);
-        paint.setStyle(Paint.Style.STROKE);
 
         // Loop on every face detected
         for (VisionDetRet visionDetRet : results) {
@@ -141,28 +120,25 @@ public class DetectAsyncTask extends AsyncTask<File, Void, List<VisionDetRet>> {
             bounds.top = (int) (visionDetRet.getTop());
             bounds.right = (int) (visionDetRet.getRight());
             bounds.bottom = (int) (visionDetRet.getBottom());
-            canvas.drawRect(bounds, paint);
+            canvas.drawRect(bounds, mFacePaint);
             Timber.d("Detected FaceRect[W=%d,H=%d]", bounds.width(), bounds.height());
 
             // Get landmark and draw them
             ArrayList<Point> landmarks = visionDetRet.getFaceLandmarks();
             for (int i = 0; i < landmarks.size(); i++) {
-                paint.setColor(getLandmarkColorByIndex(i));
+                mLandmardkPaint.setColor(getLandmarkColorByIndex(i));
                 Point point = landmarks.get(i);
                 int pointX = (int) (point.x);
                 int pointY = (int) (point.y);
-                canvas.drawCircle(pointX, pointY, 2, paint);
+                canvas.drawCircle(pointX, pointY, 2, mLandmardkPaint);
             }
 
             // Add text for open/close mouth/eyes
-            Paint textPaint = new Paint();
-            textPaint.setColor(color);
-            textPaint.setTextSize(16.0f);
             int x = bounds.left + 2;
             int y = bounds.top - 38;
-            canvas.drawText("left eye: " + (isLeftEyeOpen(landmarks) ? "Open" : "Closed"), x, y, textPaint);
-            canvas.drawText("right eye: " + (isRightEyeOpen(landmarks) ? "Open" : "Closed"), x, y + 16, textPaint);
-            canvas.drawText("mouth open: " + (isMouthOpen(landmarks) ? "Open" : "Closed"), x, y + 32, textPaint);
+            canvas.drawText("Left-Eye: " + (isLeftEyeOpen(landmarks) ? "Open" : "Closed"), x, y, mFacePaint);
+            canvas.drawText("Right-Eye: " + (isRightEyeOpen(landmarks) ? "Open" : "Closed"), x, y + 16, mFacePaint);
+            canvas.drawText("Mouth: " + (isMouthOpen(landmarks) ? "Open" : "Closed"), x, y + 32, mFacePaint);
         }
 
         mImageView.setImageBitmap(bitmap);
@@ -204,12 +180,6 @@ public class DetectAsyncTask extends AsyncTask<File, Void, List<VisionDetRet>> {
         int deltaX = p1.x - p2.x;
         int deltaY = p1.y - p2.y;
         return Math.sqrt((deltaX * deltaX) + (deltaY * deltaY));
-    }
-
-    public static void releaseDetector() {
-        if (sFaceDet != null) {
-            sFaceDet.release();
-        }
     }
 
     /**

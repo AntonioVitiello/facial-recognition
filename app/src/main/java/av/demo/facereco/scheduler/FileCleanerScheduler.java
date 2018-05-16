@@ -17,7 +17,7 @@ import timber.log.Timber;
 
 public class FileCleanerScheduler {
     private static final FileCleanerScheduler sInstance = new FileCleanerScheduler();
-    final int mDelay = MyApplication.getIntResource(R.integer.file_cleaner_delay_millisec);
+    final int mDelay = MyApplication.getIntResource(R.integer.files_cleaner_interval_millisec);
     final int mFilesRetainCount = MyApplication.getIntResource(R.integer.file_count_retain);
     private final Object lock = new Object();
     private File mOutputDir;
