@@ -56,6 +56,4 @@ dependencies {
     implementation 'com.google.android.gms:play-services-vision:15.0.2'
     // natario1/CameraView
     implementation 'com.otaliastudios:cameraview:1.5.0'
-    // Dexter (check permissions)
-    implementation 'com.karumi:dexter:4.2.0'
 }

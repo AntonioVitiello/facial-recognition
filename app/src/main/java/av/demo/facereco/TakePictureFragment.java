@@ -1,8 +1,6 @@
 package av.demo.facereco;
 
-import android.Manifest;
 import android.content.pm.PackageManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -11,34 +9,31 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.karumi.dexter.Dexter;
-import com.karumi.dexter.listener.DexterError;
-import com.karumi.dexter.listener.PermissionRequestErrorListener;
-import com.karumi.dexter.listener.single.DialogOnDeniedPermissionListener;
 import com.otaliastudios.cameraview.CameraException;
 import com.otaliastudios.cameraview.CameraListener;
 import com.otaliastudios.cameraview.CameraOptions;
 import com.otaliastudios.cameraview.CameraView;
 
+import java.util.Timer;
+
 import av.demo.facereco.files.PictureDirCleanerTask;
 import av.demo.facereco.files.PictureSaverTask;
 import av.demo.facereco.images.ImageBox;
-import av.demo.facereco.scheduler.Timer;
+import av.demo.facereco.scheduler.FilesCleanerTask;
+import av.demo.facereco.scheduler.TakePictureTask;
 import timber.log.Timber;
 
 /**
  * Created by Vitiello Antonio on 07/04/2018.
  */
 
-public class TakePictureFragment extends Fragment implements Timer.Subscriber {
-    private static final int TAKE_PICTURE_ALARM_ID = 1;
-    private static final int FILE_CLEANER_ALARM_ID = 2;
+public class TakePictureFragment extends Fragment implements TakePictureTask.OnTimer, FilesCleanerTask.OnTimer {
     private CameraView mCameraView;
-    private Timer mTakePictureTimer;
-    private Timer mFileCleanerTimer;
     private PictureSaverTask mPictureSaverTask;
     private PictureDirCleanerTask mPictureDirCleanerTask;
-    private boolean mCapturingPicture;
+    private Timer mTimer;
+    private FilesCleanerTask mFilesCleanerTask;
+    private TakePictureTask mTakePictureTask;
 
     public TakePictureFragment() {
     }
@@ -50,30 +45,20 @@ public class TakePictureFragment extends Fragment implements Timer.Subscriber {
         // TODO: 11/04/2018  setRetainInstance ?
 //        setRetainInstance(true);
 
-        // Start timer to take picture
-        mTakePictureTimer = new Timer.Builder()
-                .subscriber(this)
-                .delay(getResources().getInteger(R.integer.take_picture_interval_millisec))
-                .alarmId(TAKE_PICTURE_ALARM_ID)
-                .build();
-
-        // Start timer to clean piture dir
-        mFileCleanerTimer = new Timer.Builder()
-                .subscriber(this)
-                .delay(getResources().getInteger(R.integer.files_cleaner_interval_millisec))
-                .alarmId(FILE_CLEANER_ALARM_ID)
-                .build();
+        mTimer = new Timer(getClass().getSimpleName(), true);
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+Timber.e("AAA onCreateView:");
         final View rootView = inflater.inflate(R.layout.fragment_take_picture, container, false);
         initCamera(rootView);
         return rootView;
     }
 
     private void initCamera(View rootView) {
+Timber.e("AAA initCamera:" + rootView );
         mCameraView = rootView.findViewById(R.id.camera);
         mCameraView.addCameraListener(new CameraListener() {
             @Override
@@ -104,26 +89,42 @@ public class TakePictureFragment extends Fragment implements Timer.Subscriber {
 
     }
 
+    private void startTimers() {
+        stopTimers();
+        mTakePictureTask = new TakePictureTask(this);
+        mFilesCleanerTask = new FilesCleanerTask(this);
+        mTimer.schedule(mTakePictureTask, TakePictureTask.INTERVAL, TakePictureTask.INTERVAL);
+        mTimer.schedule(mFilesCleanerTask, FilesCleanerTask.INTERVAL, FilesCleanerTask.INTERVAL);
+    }
+
+    private void stopTimers() {
+        if(mTakePictureTask != null) {
+            mTakePictureTask.cancel();
+        }
+        if(mTakePictureTask != null) {
+            mTakePictureTask.cancel();
+        }
+    }
+
     @Override
     public void onResume() {
         super.onResume();
         mCameraView.start();
-        mTakePictureTimer.start();
-        mFileCleanerTimer.start();
+        startTimers();
     }
 
     @Override
     public void onPause() {
-        mTakePictureTimer.stop();
-        mFileCleanerTimer.stop();
         mCameraView.stop();
+        stopTimers();
         super.onPause();
     }
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
+        mTimer.cancel();
         mCameraView.destroy();
+        super.onDestroy();
     }
 
     /**
@@ -145,73 +146,34 @@ public class TakePictureFragment extends Fragment implements Timer.Subscriber {
         }
     }
 
-    @Override
-    public void onSchedule(int alarmId) {
-        switch (alarmId) {
-            case TAKE_PICTURE_ALARM_ID:
-                capturePicture();
-                break;
-            case FILE_CLEANER_ALARM_ID:
-                cleanPictureDir();
-                break;
-            default:
-                Timber.e("Unknown alarm ID: %d", alarmId);
-        }
-    }
-
-    private boolean isSavingPicture() {
-        return mPictureSaverTask != null && mPictureSaverTask.getStatus() == AsyncTask.Status.RUNNING;
-    }
-
-    public void capturePicture() {
-        if (mCapturingPicture || isSavingPicture()) {
-            return;
-        }
-        mCapturingPicture = true;
-        mCameraView.capturePicture();
-    }
-
     private void savePicture(byte[] jpeg) {
-        mCapturingPicture = false;
         mPictureSaverTask = new PictureSaverTask();
         mPictureSaverTask.execute(new ImageBox(jpeg));
     }
 
-    private void cleanPictureDir() {
-        Timber.d("Clean picture dir request");
-        if (mPictureDirCleanerTask != null) {
-            mPictureDirCleanerTask.stop();
+    @Override
+    public void onTimeout(int taskId) {
+        switch (taskId) {
+            case TakePictureTask.TASK_ID:
+                capturePicture();
+                break;
+            case FilesCleanerTask.TASK_ID:
+                cleanPictureDir();
+                break;
+            default:
+                Timber.e("Unknown alarm ID: %d", taskId);
         }
-        mPictureDirCleanerTask = new PictureDirCleanerTask();
-        mPictureDirCleanerTask.execute();
     }
 
-    /**
-     * NOT USED!
-     * CameraView alredy managed in from CameraView and onRequestPermissionsResult
-     * Use Dexter library to manage Permissions
-     *
-     * @see <a href="https://github.com/Karumi/Dexter</a>
-     */
-    private void permissionsMgr() {
-        DialogOnDeniedPermissionListener dialogListener = DialogOnDeniedPermissionListener.Builder
-                .withContext(getContext())
-                .withTitle("Camera permission")
-                .withMessage("Camera permission is needed to take pictures of your cat")
-                .withButtonText(android.R.string.ok)
-                .withIcon(R.drawable.ic_announcement)
-                .build();
+    public void capturePicture() {
+        Timber.d("Capture picture request");
+        mCameraView.capturePicture();
+    }
 
-        Dexter.withActivity(getActivity())
-                .withPermission(Manifest.permission.CAMERA)
-                .withListener(dialogListener)
-                .withErrorListener(new PermissionRequestErrorListener() {
-                    @Override
-                    public void onError(DexterError error) {
-                        Timber.e("Permissions error: %s", error.toString());
-                    }
-                })
-                .check();
+    private void cleanPictureDir() {
+        Timber.d("Clean picture dir request");
+        mPictureDirCleanerTask = new PictureDirCleanerTask();
+        mPictureDirCleanerTask.execute();
     }
 
 }

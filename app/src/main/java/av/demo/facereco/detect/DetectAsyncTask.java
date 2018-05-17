@@ -56,14 +56,13 @@ public class DetectAsyncTask extends AsyncTask<File, Void, List<VisionDetRet>> {
         // start face detector
         FaceDet faceDet = DetectorMgr.getInstance().getFaceDet();
         List<VisionDetRet> faceList = faceDet.detect(pictures[0].getPath());
-        Timber.d("FaceDet: %d faces detected.", faceList.size());
-        // draw face landmarks
-        drawRect(faceList);
+        Timber.d("FaceDet: %d face detected.", faceList.size());
         return faceList;
     }
 
     @Override
     protected void onPostExecute(List<VisionDetRet> faceList) {
+        drawRect(faceList); // draw face landmarks
         hideProgressDialog();
         String msg = faceList.size() != 0 ?  faceList.size() + " face detected." : "No face detected.";
         Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
