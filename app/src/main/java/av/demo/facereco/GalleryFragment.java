@@ -148,7 +148,8 @@ public class GalleryFragment extends Fragment {
                 break;
             }
             case MenuTapEvent.RECOGNIZE_DIR: {
-                Timber.e("AAA RECOGNIZE_DIR: TODO!");
+                // TODO: 17/05/2018 TODO
+                Timber.e("RECOGNIZE_DIR: TODO!");
                 break;
             }
             default:
@@ -157,7 +158,7 @@ public class GalleryFragment extends Fragment {
     }
 
     /**
-     * start Face Detection
+     * Start Face Detection
      */
     private void faceDetect() {
         mDetectAsyncTask = new DetectAsyncTask(getContext(), mPictureImageView);

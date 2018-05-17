@@ -1,6 +1,7 @@
 package av.demo.facereco;
 
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -14,30 +15,32 @@ import com.otaliastudios.cameraview.CameraListener;
 import com.otaliastudios.cameraview.CameraOptions;
 import com.otaliastudios.cameraview.CameraView;
 
+import java.io.File;
 import java.util.Timer;
 
 import av.demo.facereco.files.PictureDirCleanerTask;
-import av.demo.facereco.files.PictureSaverTask;
 import av.demo.facereco.images.ImageBox;
-import av.demo.facereco.scheduler.MyTimerTask;
+import av.demo.facereco.images.ImageUtils;
+import av.demo.facereco.timertask.MyTimerTask;
+import av.demo.facereco.worker.MyWorkerThread;
 import timber.log.Timber;
 
 /**
  * Created by Vitiello Antonio on 07/04/2018.
  */
 
-public class TakePictureFragment extends Fragment implements MyTimerTask.OnTimer {
+public class TakePictureFragment extends Fragment implements MyTimerTask.OnTimer, MyWorkerThread.OnResponse {
     public static final long PIC_INTERVAL = MyApplication.getIntResource(R.integer.take_picture_interval_millisec);
     public static final long CLEAN_INTERVAL = MyApplication.getIntResource(R.integer.files_cleaner_interval_millisec);
-    public static final int PIC_TASK_ID = 11;
-    public static final int CLEAN_TASK_ID = 22;
+    public static final int PIC_TASK_ID = 0;
+    public static final int CLEAN_TASK_ID = 1;
 
     private CameraView mCameraView;
-    private PictureSaverTask mPictureSaverTask;
     private PictureDirCleanerTask mPictureDirCleanerTask;
     private Timer mTimer;
     private MyTimerTask mTakePictureTask;
     private MyTimerTask mFilesCleanerTask;
+    private MyWorkerThread mWorkerThread;
 
     public TakePictureFragment() {
     }
@@ -50,6 +53,7 @@ public class TakePictureFragment extends Fragment implements MyTimerTask.OnTimer
 //        setRetainInstance(true);
 
         mTimer = new Timer(getClass().getSimpleName(), true);
+        mWorkerThread = new MyWorkerThread(this);
     }
 
     @Nullable
@@ -100,11 +104,11 @@ public class TakePictureFragment extends Fragment implements MyTimerTask.OnTimer
     }
 
     private void stopTimers() {
-        if(mTakePictureTask != null) {
+        if (mTakePictureTask != null) {
             mTakePictureTask.cancel();
         }
-        if(mTakePictureTask != null) {
-            mTakePictureTask.cancel();
+        if (mFilesCleanerTask != null) {
+            mFilesCleanerTask.cancel();
         }
     }
 
@@ -117,20 +121,21 @@ public class TakePictureFragment extends Fragment implements MyTimerTask.OnTimer
 
     @Override
     public void onPause() {
+        super.onPause();
         mCameraView.stop();
         stopTimers();
-        super.onPause();
     }
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
         mTimer.cancel();
         mCameraView.destroy();
-        super.onDestroy();
+        mWorkerThread.quitSafely();
     }
 
     /**
-     * CamerView implements checkPermissions in his start() method so jus need manage onRequestPermissionsResult
+     * CamerView implements checkPermissions in his with() method so jus need manage onRequestPermissionsResult
      *
      * @param requestCode
      * @param permissions
@@ -149,8 +154,7 @@ public class TakePictureFragment extends Fragment implements MyTimerTask.OnTimer
     }
 
     private void savePicture(byte[] jpeg) {
-        mPictureSaverTask = new PictureSaverTask();
-        mPictureSaverTask.execute(new ImageBox(jpeg));
+        mWorkerThread.enqueue(jpeg, MyWorkerThread.SAVE_PICTURE_JOB);
     }
 
     @Override
@@ -174,8 +178,40 @@ public class TakePictureFragment extends Fragment implements MyTimerTask.OnTimer
 
     private void cleanPictureDir() {
         Timber.d("Clean picture dir request");
+
+
         mPictureDirCleanerTask = new PictureDirCleanerTask();
         mPictureDirCleanerTask.execute();
     }
 
+    @Override
+    public void onSaved(Object obj, int jobId) {
+        switch (jobId) {
+            case MyWorkerThread.SAVE_PICTURE_JOB: {
+                final File file = (File) obj;
+                Timber.d("Full size picture saved: %s", file);
+                // Reload picture, caches it, resize and save in gray scale. This must happens in main-Thread!
+                ImageUtils.transformPicture(file, new ImageUtils.OnImageReady() {
+                    @Override
+                    public void setBitmap(Bitmap bitmap) {
+                        ImageBox imageBox = new ImageBox(bitmap, file);
+                        mWorkerThread.enqueue(imageBox, MyWorkerThread.SAVE_TRANSF_PICTURE_JOB);
+                    }
+                });
+                break;
+            }
+            case MyWorkerThread.CLEAN_PIC_DIR_JOB: {
+
+                break;
+            }
+            case MyWorkerThread.SAVE_TRANSF_PICTURE_JOB: {
+                final File file = (File) obj;
+                Timber.d("Picture transformed: %s", file);
+                break;
+            }
+            default:
+                Timber.e("Unknown job id: %d", jobId);
+        }
+
+    }
 }
