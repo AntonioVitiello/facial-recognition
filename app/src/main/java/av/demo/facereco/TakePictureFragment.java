@@ -19,21 +19,25 @@ import java.util.Timer;
 import av.demo.facereco.files.PictureDirCleanerTask;
 import av.demo.facereco.files.PictureSaverTask;
 import av.demo.facereco.images.ImageBox;
-import av.demo.facereco.scheduler.FilesCleanerTask;
-import av.demo.facereco.scheduler.TakePictureTask;
+import av.demo.facereco.scheduler.MyTimerTask;
 import timber.log.Timber;
 
 /**
  * Created by Vitiello Antonio on 07/04/2018.
  */
 
-public class TakePictureFragment extends Fragment implements TakePictureTask.OnTimer, FilesCleanerTask.OnTimer {
+public class TakePictureFragment extends Fragment implements MyTimerTask.OnTimer {
+    public static final long PIC_INTERVAL = MyApplication.getIntResource(R.integer.take_picture_interval_millisec);
+    public static final long CLEAN_INTERVAL = MyApplication.getIntResource(R.integer.files_cleaner_interval_millisec);
+    public static final int PIC_TASK_ID = 11;
+    public static final int CLEAN_TASK_ID = 22;
+
     private CameraView mCameraView;
     private PictureSaverTask mPictureSaverTask;
     private PictureDirCleanerTask mPictureDirCleanerTask;
     private Timer mTimer;
-    private FilesCleanerTask mFilesCleanerTask;
-    private TakePictureTask mTakePictureTask;
+    private MyTimerTask mTakePictureTask;
+    private MyTimerTask mFilesCleanerTask;
 
     public TakePictureFragment() {
     }
@@ -51,14 +55,12 @@ public class TakePictureFragment extends Fragment implements TakePictureTask.OnT
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-Timber.e("AAA onCreateView:");
         final View rootView = inflater.inflate(R.layout.fragment_take_picture, container, false);
         initCamera(rootView);
         return rootView;
     }
 
     private void initCamera(View rootView) {
-Timber.e("AAA initCamera:" + rootView );
         mCameraView = rootView.findViewById(R.id.camera);
         mCameraView.addCameraListener(new CameraListener() {
             @Override
@@ -91,10 +93,10 @@ Timber.e("AAA initCamera:" + rootView );
 
     private void startTimers() {
         stopTimers();
-        mTakePictureTask = new TakePictureTask(this);
-        mFilesCleanerTask = new FilesCleanerTask(this);
-        mTimer.schedule(mTakePictureTask, TakePictureTask.INTERVAL, TakePictureTask.INTERVAL);
-        mTimer.schedule(mFilesCleanerTask, FilesCleanerTask.INTERVAL, FilesCleanerTask.INTERVAL);
+        mTakePictureTask = new MyTimerTask(this, PIC_TASK_ID);
+        mFilesCleanerTask = new MyTimerTask(this, CLEAN_TASK_ID);
+        mTimer.schedule(mTakePictureTask, PIC_INTERVAL, PIC_INTERVAL);
+        mTimer.schedule(mFilesCleanerTask, CLEAN_INTERVAL, CLEAN_INTERVAL);
     }
 
     private void stopTimers() {
@@ -154,10 +156,10 @@ Timber.e("AAA initCamera:" + rootView );
     @Override
     public void onTimeout(int taskId) {
         switch (taskId) {
-            case TakePictureTask.TASK_ID:
+            case PIC_TASK_ID:
                 capturePicture();
                 break;
-            case FilesCleanerTask.TASK_ID:
+            case CLEAN_TASK_ID:
                 cleanPictureDir();
                 break;
             default:
