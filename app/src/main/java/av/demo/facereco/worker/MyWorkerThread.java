@@ -7,6 +7,7 @@ import android.os.Message;
 import java.io.File;
 import java.text.SimpleDateFormat;
 
+import av.demo.facereco.files.PictureCleaner;
 import av.demo.facereco.files.PictureSaver;
 import av.demo.facereco.images.ImageBox;
 import timber.log.Timber;
@@ -21,6 +22,7 @@ public class MyWorkerThread extends HandlerThread {
     public static final int SAVE_TRANSF_PICTURE_JOB = 2;
 
     PictureSaver mPictureSaver = new PictureSaver();
+    PictureCleaner mPictureCleaner = new PictureCleaner();
     private Handler mWorkerHandler;
     private Handler mResponseHandler;
     private OnResponse mOnResponse;
@@ -54,12 +56,13 @@ public class MyWorkerThread extends HandlerThread {
             Timber.d("[%d]Processing message", msg.what);
             switch (msg.what) {
                 case SAVE_PICTURE_JOB: {
-                    File file = mPictureSaver.with((byte[])msg.obj);
+                    File file = mPictureSaver.with((byte[]) msg.obj);
                     postBack(file, SAVE_PICTURE_JOB);
                     break;
                 }
                 case CLEAN_PIC_DIR_JOB: {
-                    cleanPictureDir();
+                    File[] filesDeleted = mPictureCleaner.clean();
+                    postBack(filesDeleted, CLEAN_PIC_DIR_JOB);
                     break;
                 }
                 case SAVE_TRANSF_PICTURE_JOB: {
@@ -76,21 +79,33 @@ public class MyWorkerThread extends HandlerThread {
         }
     };
 
-    private void postBack(final File file, final int jobId) {
+    private void postBack(final Object obj, final int jobId) {
         mResponseHandler.post(new Runnable() {
             @Override
             public void run() {
-                mOnResponse.onSaved(file, jobId);
+                switch (jobId) {
+                    case CLEAN_PIC_DIR_JOB: {
+                        File[] files = (File[]) obj;
+                        mOnResponse.onCleaned(files, jobId);
+                        break;
+                    }
+                    case SAVE_PICTURE_JOB:
+                    case SAVE_TRANSF_PICTURE_JOB: {
+                        File file = (File) obj;
+                        mOnResponse.onSaved(file, jobId);
+                        break;
+                    }
+                    default:
+                        Timber.e("Unexpected job ID: " + jobId);
+                }
             }
         });
     }
 
-    private void cleanPictureDir() {
-
-    }
-
     public interface OnResponse {
-        public void onSaved(Object obj, int jobId);
+        void onSaved(File file, int jobId);
+
+        void onCleaned(File[] files, int jobId);
     }
 
 }

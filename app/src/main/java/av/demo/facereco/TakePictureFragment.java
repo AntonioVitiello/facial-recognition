@@ -18,7 +18,6 @@ import com.otaliastudios.cameraview.CameraView;
 import java.io.File;
 import java.util.Timer;
 
-import av.demo.facereco.files.PictureDirCleanerTask;
 import av.demo.facereco.images.ImageBox;
 import av.demo.facereco.images.ImageUtils;
 import av.demo.facereco.timertask.MyTimerTask;
@@ -36,7 +35,6 @@ public class TakePictureFragment extends Fragment implements MyTimerTask.OnTimer
     public static final int CLEAN_TASK_ID = 1;
 
     private CameraView mCameraView;
-    private PictureDirCleanerTask mPictureDirCleanerTask;
     private Timer mTimer;
     private MyTimerTask mTakePictureTask;
     private MyTimerTask mFilesCleanerTask;
@@ -173,22 +171,18 @@ public class TakePictureFragment extends Fragment implements MyTimerTask.OnTimer
 
     public void capturePicture() {
         Timber.d("Capture picture request");
-        mCameraView.capturePicture();
+        mCameraView.capturePicture(); //result received in onPictureTaken
     }
 
     private void cleanPictureDir() {
         Timber.d("Clean picture dir request");
-
-
-        mPictureDirCleanerTask = new PictureDirCleanerTask();
-        mPictureDirCleanerTask.execute();
+        mWorkerThread.enqueue(null, MyWorkerThread.CLEAN_PIC_DIR_JOB);
     }
 
     @Override
-    public void onSaved(Object obj, int jobId) {
+    public void onSaved(final File file, int jobId) {
         switch (jobId) {
             case MyWorkerThread.SAVE_PICTURE_JOB: {
-                final File file = (File) obj;
                 Timber.d("Full size picture saved: %s", file);
                 // Reload picture, caches it, resize and save in gray scale. This must happens in main-Thread!
                 ImageUtils.transformPicture(file, new ImageUtils.OnImageReady() {
@@ -200,12 +194,7 @@ public class TakePictureFragment extends Fragment implements MyTimerTask.OnTimer
                 });
                 break;
             }
-            case MyWorkerThread.CLEAN_PIC_DIR_JOB: {
-
-                break;
-            }
             case MyWorkerThread.SAVE_TRANSF_PICTURE_JOB: {
-                final File file = (File) obj;
                 Timber.d("Picture transformed: %s", file);
                 break;
             }
@@ -214,4 +203,10 @@ public class TakePictureFragment extends Fragment implements MyTimerTask.OnTimer
         }
 
     }
+
+    @Override
+    public void onCleaned(File[] files, int jobId) {
+        // Do nothing
+    }
+
 }
