@@ -69,7 +69,7 @@ public class DetectAsyncTask extends AsyncTask<File, Void, List<VisionDetRet>> {
     }
 
     private void showProgressDialog() {
-        mDialog = ProgressDialog.show(mContext, "Wait", "Face detection in progress...", true);
+        mDialog = ProgressDialog.show(mContext, "Please Wait", "Face detection in progress...", true);
     }
 
     private void hideProgressDialog() {
@@ -90,7 +90,7 @@ public class DetectAsyncTask extends AsyncTask<File, Void, List<VisionDetRet>> {
     }
 
     private void showDialogNotReady() {
-        mDialog = ProgressDialog.show(mContext, "Wait", "Face detection initializing...", true);
+        mDialog = ProgressDialog.show(mContext, "Please Wait", "Face detection initializing...", true);
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
