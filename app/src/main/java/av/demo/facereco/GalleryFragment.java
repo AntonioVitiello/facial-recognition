@@ -83,8 +83,11 @@ public class GalleryFragment extends Fragment {
 
     @Override
     public void onPause() {
-        EventBus.getDefault().unregister(this);
         super.onPause();
+        EventBus.getDefault().unregister(this);
+        if(mDetectAsyncTask != null) {
+            mDetectAsyncTask.cancel(true);
+        }
     }
 
     private void loadPicture() {
