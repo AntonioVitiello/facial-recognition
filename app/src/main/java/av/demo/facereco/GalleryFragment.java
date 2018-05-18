@@ -22,7 +22,6 @@ import java.io.File;
 import java.util.Arrays;
 
 import av.demo.facereco.detect.DetectAsyncTask;
-import av.demo.facereco.detect.RecognizeDirTask;
 import av.demo.facereco.event.MenuTapEvent;
 import timber.log.Timber;
 
@@ -76,7 +75,6 @@ public class GalleryFragment extends Fragment {
         EventBus eventBus = EventBus.getDefault();
         if (!eventBus.isRegistered(this)) {
             eventBus.register(this);
-            mDetectAsyncTask = null;
             loadPicture();
         }
     }
@@ -87,6 +85,7 @@ public class GalleryFragment extends Fragment {
         EventBus.getDefault().unregister(this);
         if(mDetectAsyncTask != null) {
             mDetectAsyncTask.cancel(true);
+            mDetectAsyncTask = null;
         }
     }
 
@@ -166,10 +165,6 @@ public class GalleryFragment extends Fragment {
     private void faceDetect() {
         mDetectAsyncTask = new DetectAsyncTask(getContext(), mPictureImageView);
         mDetectAsyncTask.execute(mPictures[0]);
-    }
-
-    private void recognizeDir() {
-        new RecognizeDirTask().execute();
     }
 
 }

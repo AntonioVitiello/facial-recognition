@@ -57,14 +57,5 @@
             <!--Avoid warning: XML tag has empty body-->
         </activity>
 
-        <activity
-            android:name="com.wonderkiln.camerakit.demo.MainActivity"
-            android:launchMode="singleTask">
-            <!--Avoid warning: XML tag has empty body-->
-        </activity>
-        
-        <activity
-            android:name="com.wonderkiln.camerakit.demo.PreviewActivity"
-            android:launchMode="singleTask" />
     </application>
 </manifest>

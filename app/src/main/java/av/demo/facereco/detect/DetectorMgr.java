@@ -15,7 +15,6 @@ import timber.log.Timber;
 public class DetectorMgr {
     private static final DetectorMgr sInstance = new DetectorMgr();
     private FaceDet mFaceDet;
-    private Object lock = new Object();
 
     public static DetectorMgr getInstance() {
         return sInstance;

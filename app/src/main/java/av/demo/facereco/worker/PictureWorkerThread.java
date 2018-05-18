@@ -14,8 +14,11 @@ import timber.log.Timber;
 
 /**
  * Created by Antonio Vitiello on 16/05/2018.
+ * to save picture files,
+ * transform picture files (resize and greyscale),
+ * clean picture files dir, delete oldest files leaving just last n files.
  */
-public class MyWorkerThread extends HandlerThread {
+public class PictureWorkerThread extends HandlerThread {
     private static final SimpleDateFormat mDateFormat = new SimpleDateFormat("yyMMdd_HHmmss");
     public static final int SAVE_PICTURE_JOB = 0;
     public static final int CLEAN_PIC_DIR_JOB = 1;
@@ -27,8 +30,8 @@ public class MyWorkerThread extends HandlerThread {
     private Handler mResponseHandler;
     private OnResponse mOnResponse;
 
-    public MyWorkerThread(OnResponse onResponse) {
-        super(MyWorkerThread.class.getSimpleName());
+    public PictureWorkerThread(OnResponse onResponse) {
+        super(PictureWorkerThread.class.getSimpleName());
         super.start();
         prepareHandler();
         mResponseHandler = new Handler();

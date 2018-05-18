@@ -21,14 +21,14 @@ import java.util.Timer;
 import av.demo.facereco.images.ImageBox;
 import av.demo.facereco.images.ImageUtils;
 import av.demo.facereco.timertask.MyTimerTask;
-import av.demo.facereco.worker.MyWorkerThread;
+import av.demo.facereco.worker.PictureWorkerThread;
 import timber.log.Timber;
 
 /**
  * Created by Vitiello Antonio on 07/04/2018.
  */
 
-public class TakePictureFragment extends Fragment implements MyTimerTask.OnTimer, MyWorkerThread.OnResponse {
+public class TakePictureFragment extends Fragment implements MyTimerTask.OnTimer, PictureWorkerThread.OnResponse {
     public static final long PIC_INTERVAL = MyApplication.getIntResource(R.integer.take_picture_interval_millisec);
     public static final long CLEAN_INTERVAL = MyApplication.getIntResource(R.integer.files_cleaner_interval_millisec);
     public static final int PIC_TASK_ID = 0;
@@ -38,7 +38,7 @@ public class TakePictureFragment extends Fragment implements MyTimerTask.OnTimer
     private Timer mTimer;
     private MyTimerTask mTakePictureTask;
     private MyTimerTask mFilesCleanerTask;
-    private MyWorkerThread mWorkerThread;
+    private PictureWorkerThread mWorkerThread;
 
     public TakePictureFragment() {
     }
@@ -51,7 +51,7 @@ public class TakePictureFragment extends Fragment implements MyTimerTask.OnTimer
 //        setRetainInstance(true);
 
         mTimer = new Timer(getClass().getSimpleName(), true);
-        mWorkerThread = new MyWorkerThread(this);
+        mWorkerThread = new PictureWorkerThread(this);
     }
 
     @Nullable
@@ -152,7 +152,7 @@ public class TakePictureFragment extends Fragment implements MyTimerTask.OnTimer
     }
 
     private void savePicture(byte[] jpeg) {
-        mWorkerThread.enqueue(jpeg, MyWorkerThread.SAVE_PICTURE_JOB);
+        mWorkerThread.enqueue(jpeg, PictureWorkerThread.SAVE_PICTURE_JOB);
     }
 
     @Override
@@ -176,25 +176,25 @@ public class TakePictureFragment extends Fragment implements MyTimerTask.OnTimer
 
     private void cleanPictureDir() {
         Timber.d("Clean picture dir request");
-        mWorkerThread.enqueue(null, MyWorkerThread.CLEAN_PIC_DIR_JOB);
+        mWorkerThread.enqueue(null, PictureWorkerThread.CLEAN_PIC_DIR_JOB);
     }
 
     @Override
     public void onSaved(final File file, int jobId) {
         switch (jobId) {
-            case MyWorkerThread.SAVE_PICTURE_JOB: {
+            case PictureWorkerThread.SAVE_PICTURE_JOB: {
                 Timber.d("Full size picture saved: %s", file);
                 // Reload picture, caches it, resize and save in gray scale. This must happens in main-Thread!
                 ImageUtils.transformPicture(file, new ImageUtils.OnImageReady() {
                     @Override
                     public void setBitmap(Bitmap bitmap) {
                         ImageBox imageBox = new ImageBox(bitmap, file);
-                        mWorkerThread.enqueue(imageBox, MyWorkerThread.SAVE_TRANSF_PICTURE_JOB);
+                        mWorkerThread.enqueue(imageBox, PictureWorkerThread.SAVE_TRANSF_PICTURE_JOB);
                     }
                 });
                 break;
             }
-            case MyWorkerThread.SAVE_TRANSF_PICTURE_JOB: {
+            case PictureWorkerThread.SAVE_TRANSF_PICTURE_JOB: {
                 Timber.d("Picture transformed: %s", file);
                 break;
             }
