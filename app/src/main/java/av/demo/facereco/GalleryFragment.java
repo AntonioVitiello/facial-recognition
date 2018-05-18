@@ -21,7 +21,6 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.io.File;
 import java.util.Arrays;
 
-import av.demo.facereco.detect.DetectorMgr;
 import av.demo.facereco.event.MenuTapEvent;
 import av.demo.facereco.worker.DetectWorkerThread;
 import timber.log.Timber;
@@ -36,7 +35,6 @@ public class GalleryFragment extends Fragment {
     private ImageView mPictureImageView;
     private File[] mPictures;
     private Picasso mPicasso;
-    private DetectWorkerThread mDetectThread;
     private boolean isLandmarkDraw;
 
     public GalleryFragment() {
@@ -61,7 +59,6 @@ public class GalleryFragment extends Fragment {
         mPicasso = Picasso.get();
         // Add triangle on image left corner: red for net loaded, blue for disk loaded, green for memory loaded
         mPicasso.setIndicatorsEnabled(true);
-        mDetectThread = new DetectWorkerThread();
     }
 
     @Override
@@ -168,7 +165,7 @@ public class GalleryFragment extends Fragment {
      * Start Face Detection
      */
     private void faceDetect() {
-        DetectorMgr.getInstance().detectEnque(mPictures[0], mPictureImageView, getContext());
+        DetectWorkerThread.detectEnque(mPictures[0], mPictureImageView, getContext());
     }
 
 }

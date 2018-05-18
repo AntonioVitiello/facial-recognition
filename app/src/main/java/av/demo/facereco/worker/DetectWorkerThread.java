@@ -29,6 +29,7 @@ import timber.log.Timber;
  * Created by Antonio Vitiello on 18/05/2018.
  */
 public class DetectWorkerThread extends HandlerThread {
+    private static DetectWorkerThread sInstance = new DetectWorkerThread();
     public static final int FACE_DETECT_JOB_ID = 0;
     private Handler mWorkerHandler;
     private Handler mResponseHandler;
@@ -40,8 +41,20 @@ public class DetectWorkerThread extends HandlerThread {
     private Paint mFacePaint;
     private Paint mLandmardkPaint;
 
+    public static void detectEnque(File file, ImageView imageView, Context context) {
+        if(sInstance == null){
+            sInstance = new DetectWorkerThread();
+        }
+        sInstance.enqueue(file, imageView, context);
+    }
 
-    public DetectWorkerThread() {
+    public void quitDetectQueue(){
+        if(sInstance != null){
+            sInstance.quit();
+        }
+    }
+
+    private DetectWorkerThread() {
         super(DetectWorkerThread.class.getSimpleName());
         super.start();
         prepareHandler();
@@ -67,8 +80,8 @@ public class DetectWorkerThread extends HandlerThread {
     }
 
     public void enqueue(File file, ImageView imageView, Context context) {
-        Timber.d("New face detect job received");
         showProgressDialog(context);
+        Timber.d("New face detect job received");
         mContext = context;
         DetectWrapper detectWrapper = new DetectWrapper(file, imageView, context);
         Message message = mWorkerHandler.obtainMessage(FACE_DETECT_JOB_ID, detectWrapper);
@@ -90,7 +103,6 @@ public class DetectWorkerThread extends HandlerThread {
 
     private void handleRequest(File file, final ImageView imageView, final Context context) {
         //...do the job in a separate thread
-Timber.e("AAA handleRequest: " + this);
         initPainters();
         Timber.d("FaceDet: detecting face in %s", file);
         // start face detector
