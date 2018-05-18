@@ -90,7 +90,7 @@ public class GalleryFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mDetectThread.quitSafely();
+        mDetectThread.quit();
     }
 
     private void loadPicture() {
