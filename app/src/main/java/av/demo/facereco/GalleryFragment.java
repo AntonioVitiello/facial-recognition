@@ -21,6 +21,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.io.File;
 import java.util.Arrays;
 
+import av.demo.facereco.detect.DetectorMgr;
 import av.demo.facereco.event.MenuTapEvent;
 import av.demo.facereco.worker.DetectWorkerThread;
 import timber.log.Timber;
@@ -90,7 +91,6 @@ public class GalleryFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mDetectThread.quit();
     }
 
     private void loadPicture() {
@@ -168,7 +168,7 @@ public class GalleryFragment extends Fragment {
      * Start Face Detection
      */
     private void faceDetect() {
-        mDetectThread.enqueue(mPictures[0], mPictureImageView, getContext());
+        DetectorMgr.getInstance().detectEnque(mPictures[0], mPictureImageView, getContext());
     }
 
 }

@@ -13,6 +13,7 @@ import android.widget.Toast;
 import org.greenrobot.eventbus.EventBus;
 
 import av.demo.facereco.adapters.GalleryPagerAdapter;
+import av.demo.facereco.detect.DetectorMgr;
 import av.demo.facereco.dialogs.ErrorDialog;
 import av.demo.facereco.dialogs.RationaleDialog;
 import av.demo.facereco.event.MenuTapEvent;

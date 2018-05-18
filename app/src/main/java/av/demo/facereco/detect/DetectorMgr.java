@@ -1,5 +1,8 @@
 package av.demo.facereco.detect;
 
+import android.content.Context;
+import android.widget.ImageView;
+
 import com.tzutalin.dlib.FaceDet;
 
 import java.io.File;
@@ -7,6 +10,7 @@ import java.io.File;
 import av.demo.facereco.MyApplication;
 import av.demo.facereco.R;
 import av.demo.facereco.files.FileUtils;
+import av.demo.facereco.worker.DetectWorkerThread;
 import timber.log.Timber;
 
 /**
@@ -15,6 +19,7 @@ import timber.log.Timber;
 public class DetectorMgr {
     private static final DetectorMgr sInstance = new DetectorMgr();
     private FaceDet mFaceDet;
+    private DetectWorkerThread mDetectThread = new DetectWorkerThread();
 
     public static DetectorMgr getInstance() {
         return sInstance;
@@ -35,6 +40,19 @@ public class DetectorMgr {
 
     public FaceDet getFaceDet() {
         return mFaceDet;
+    }
+
+    public void detectEnque(File file, ImageView imageView, Context context) {
+        if(mDetectThread == null){
+            mDetectThread = new DetectWorkerThread();
+        }
+        mDetectThread.enqueue(file, imageView, context);
+    }
+
+    public void quitDetectQueue(){
+        if(mDetectThread != null){
+            mDetectThread.quit();
+        }
     }
 
 }

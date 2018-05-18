@@ -43,7 +43,6 @@ public class DetectWorkerThread extends HandlerThread {
 
     public DetectWorkerThread() {
         super(DetectWorkerThread.class.getSimpleName());
-Timber.e("AAA getSimpleName: " + DetectWorkerThread.class.getSimpleName());
         super.start();
         prepareHandler();
         mResponseHandler = new Handler();
@@ -91,6 +90,7 @@ Timber.e("AAA getSimpleName: " + DetectWorkerThread.class.getSimpleName());
 
     private void handleRequest(File file, final ImageView imageView, final Context context) {
         //...do the job in a separate thread
+Timber.e("AAA handleRequest: " + this);
         initPainters();
         Timber.d("FaceDet: detecting face in %s", file);
         // start face detector
