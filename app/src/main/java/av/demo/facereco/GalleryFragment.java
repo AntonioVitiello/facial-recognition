@@ -21,8 +21,8 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.io.File;
 import java.util.Arrays;
 
-import av.demo.facereco.detect.DetectAsyncTask;
 import av.demo.facereco.event.MenuTapEvent;
+import av.demo.facereco.worker.DetectWorkerThread;
 import timber.log.Timber;
 
 
@@ -35,7 +35,8 @@ public class GalleryFragment extends Fragment {
     private ImageView mPictureImageView;
     private File[] mPictures;
     private Picasso mPicasso;
-    private DetectAsyncTask mDetectAsyncTask;
+    private DetectWorkerThread mDetectThread;
+    private boolean isLandmarkDraw;
 
     public GalleryFragment() {
     }
@@ -59,6 +60,7 @@ public class GalleryFragment extends Fragment {
         mPicasso = Picasso.get();
         // Add triangle on image left corner: red for net loaded, blue for disk loaded, green for memory loaded
         mPicasso.setIndicatorsEnabled(true);
+        mDetectThread = new DetectWorkerThread();
     }
 
     @Override
@@ -83,10 +85,12 @@ public class GalleryFragment extends Fragment {
     public void onPause() {
         super.onPause();
         EventBus.getDefault().unregister(this);
-        if(mDetectAsyncTask != null) {
-            mDetectAsyncTask.cancel(true);
-            mDetectAsyncTask = null;
-        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mDetectThread.quitSafely();
     }
 
     private void loadPicture() {
@@ -134,6 +138,7 @@ public class GalleryFragment extends Fragment {
                 });
     }
 
+    //Eventbus event
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMenuTapEvent(MenuTapEvent event) {
         if (!getUserVisibleHint()) {
@@ -141,12 +146,12 @@ public class GalleryFragment extends Fragment {
         }
         switch (event.getmItemId()) {
             case MenuTapEvent.DETECT_FACE: {
-                if (mDetectAsyncTask != null) {
+                if (isLandmarkDraw) {
                     loadPicture();
-                    mDetectAsyncTask = null;
                 } else {
                     faceDetect();
                 }
+                isLandmarkDraw = !isLandmarkDraw;
                 break;
             }
             case MenuTapEvent.RECOGNIZE_DIR: {
@@ -163,8 +168,7 @@ public class GalleryFragment extends Fragment {
      * Start Face Detection
      */
     private void faceDetect() {
-        mDetectAsyncTask = new DetectAsyncTask(getContext(), mPictureImageView);
-        mDetectAsyncTask.execute(mPictures[0]);
+        mDetectThread.enqueue(mPictures[0], mPictureImageView, getContext());
     }
 
 }
