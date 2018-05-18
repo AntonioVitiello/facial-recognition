@@ -83,11 +83,8 @@ public class GalleryFragment extends Fragment {
 
     @Override
     public void onPause() {
-        super.onPause();
         EventBus.getDefault().unregister(this);
-        if(mDetectAsyncTask != null) {
-            mDetectAsyncTask.cancel(true);
-        }
+        super.onPause();
     }
 
     private void loadPicture() {
@@ -151,8 +148,7 @@ public class GalleryFragment extends Fragment {
                 break;
             }
             case MenuTapEvent.RECOGNIZE_DIR: {
-                // TODO: 17/05/2018 TODO
-                Timber.e("RECOGNIZE_DIR: TODO!");
+                Timber.e("AAA RECOGNIZE_DIR: TODO!");
                 break;
             }
             default:
@@ -161,7 +157,7 @@ public class GalleryFragment extends Fragment {
     }
 
     /**
-     * Start Face Detection
+     * start Face Detection
      */
     private void faceDetect() {
         mDetectAsyncTask = new DetectAsyncTask(getContext(), mPictureImageView);

@@ -1,6 +1,7 @@
 package av.demo.facereco.images;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 
 import com.squareup.picasso.Picasso;
@@ -17,60 +18,59 @@ import timber.log.Timber;
  */
 
 public class ImageUtils {
-    public static final int TARGET_MAX_SIZE = MyApplication.getIntResource(R.integer.image_target_max_size);
-    public static final CacheTarget sCacheTarget = new CacheTarget();
+    public static ImageUtils sInstance = new ImageUtils();
+    private final Picasso mPicasso;
+    private final int mTargetMaxSize;
 
     public interface OnImageReady {
         void setBitmap(Bitmap bitmap);
     }
 
 
+    private ImageUtils() {
+        mPicasso = Picasso.get();
+        mTargetMaxSize = MyApplication.getIntResource(R.integer.image_target_max_size);
+    }
+
+    public static ImageUtils getInstance() {
+        return sInstance;
+    }
+
+    public static int getTargetMaxSize() {
+        return sInstance.mTargetMaxSize;
+    }
+
     /**
      * Reload picture, caches it, resize and save in gray scale. This must happens in main-Thread!
-     *
-     * @param file         picture
+     * @param file picture
      * @param onImageReady Callback
      */
-    public static void transformPicture(File file, OnImageReady onImageReady) {
-        Picasso.get()
-                .load(file)
-                .resize(TARGET_MAX_SIZE, TARGET_MAX_SIZE)
+    public void transformPicture(final File file, final OnImageReady onImageReady) {
+        mPicasso.load(file)
+                .resize(getTargetMaxSize(), getTargetMaxSize())
                 .centerInside()
-                .transform(new GrayscaleTransformation())
-                .into(sCacheTarget.set(file, onImageReady));
+//                .transform(new GrayscaleTransformation())
+                .into(new Target() {
+                    @Override
+                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                        onImageReady.setBitmap(bitmap);
+                    }
+
+                    @Override
+                    public void onBitmapFailed(Exception exc, Drawable errorDrawable) {
+                        Timber.e(exc, "Error while loading picture file: %s", file);
+                    }
+
+                    @Override
+                    public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                    }
+                });
     }
 
-    private static class CacheTarget implements Target {
-        private OnImageReady onImageReady;
-        private File file;
-
-        public CacheTarget set(File file, OnImageReady onImageReady) {
-            this.file = file;
-            this.onImageReady = onImageReady;
-            return CacheTarget.this;
-        }
-
-        @Override
-        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-            onImageReady.setBitmap(bitmap);
-        }
-
-        @Override
-        public void onBitmapFailed(Exception exc, Drawable errorDrawable) {
-            Timber.e(exc, "Error while loading picture file: %s", file);
-        }
-
-        @Override
-        public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-        }
-    }
-
-/*
     public Bitmap resizeImage(byte[] imageAsBytes, int dstHeight, int dstWidth) {
         Bitmap bitmap = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
         return Bitmap.createScaledBitmap(bitmap, dstWidth, dstHeight, false);
     }
-*/
 
 }

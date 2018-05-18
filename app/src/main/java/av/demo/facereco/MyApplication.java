@@ -1,11 +1,11 @@
 package av.demo.facereco;
 
 import android.app.Application;
-import android.content.Context;
 import android.support.annotation.NonNull;
 
 import java.io.File;
 
+import av.demo.facereco.detect.DetectAsyncTask;
 import av.demo.facereco.logger.TimberLogImplementation;
 
 /**
@@ -24,6 +24,9 @@ public class MyApplication extends Application {
 
         // Timber initialization
         TimberLogImplementation.init(getStringResource(R.string.app_name));
+
+        // Face detection initialization
+        DetectAsyncTask.initialize(this);
     }
 
     @NonNull
@@ -46,10 +49,6 @@ public class MyApplication extends Application {
 
     public static File getPictureDir() {
         return sPictureDir;
-    }
-
-    public static Context getContext() {
-        return sInstance.getApplicationContext();
     }
 
 }

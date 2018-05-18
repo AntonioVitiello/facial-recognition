@@ -1,28 +1,17 @@
 package av.demo.facereco.images;
 
-import android.graphics.Bitmap;
-
-import java.io.File;
-
 /**
  * Created by Antonio Vitiello on 17/04/2018.
  */
 
 public class ImageBox {
-    private Bitmap bitmap;
-    private File file;
+    private final byte[] imageBytes;
 
-    public ImageBox(Bitmap bitmap, File file){
-        this.bitmap = bitmap;
-        this.file = file;
+    public ImageBox(byte[] imageBytes){
+        this.imageBytes = imageBytes;
     }
 
-    public Bitmap getBitmap() {
-        return bitmap;
+    public byte[] getBytes() {
+        return imageBytes;
     }
-
-    public File getFile() {
-        return file;
-    }
-
 }

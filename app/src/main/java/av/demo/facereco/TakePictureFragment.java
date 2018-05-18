@@ -1,7 +1,6 @@
 package av.demo.facereco;
 
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -10,35 +9,28 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.otaliastudios.cameraview.CameraException;
-import com.otaliastudios.cameraview.CameraListener;
-import com.otaliastudios.cameraview.CameraOptions;
-import com.otaliastudios.cameraview.CameraView;
+import com.wonderkiln.camerakit.CameraKitEventCallback;
+import com.wonderkiln.camerakit.CameraKitImage;
+import com.wonderkiln.camerakit.CameraView;
 
-import java.io.File;
-import java.util.Timer;
-
+import av.demo.facereco.files.PictureDirCleanerTask;
+import av.demo.facereco.files.PictureSaverTask;
 import av.demo.facereco.images.ImageBox;
-import av.demo.facereco.images.ImageUtils;
-import av.demo.facereco.timertask.MyTimerTask;
-import av.demo.facereco.worker.MyWorkerThread;
+import av.demo.facereco.scheduler.Timer;
 import timber.log.Timber;
 
 /**
  * Created by Vitiello Antonio on 07/04/2018.
  */
 
-public class TakePictureFragment extends Fragment implements MyTimerTask.OnTimer, MyWorkerThread.OnResponse {
-    public static final long PIC_INTERVAL = MyApplication.getIntResource(R.integer.take_picture_interval_millisec);
-    public static final long CLEAN_INTERVAL = MyApplication.getIntResource(R.integer.files_cleaner_interval_millisec);
-    public static final int PIC_TASK_ID = 0;
-    public static final int CLEAN_TASK_ID = 1;
-
+public class TakePictureFragment extends Fragment implements Timer.Subscriber {
+    private static final int TAKE_PICTURE_ALARM_ID = 1;
+    private static final int FILE_CLEANER_ALARM_ID = 2;
     private CameraView mCameraView;
-    private Timer mTimer;
-    private MyTimerTask mTakePictureTask;
-    private MyTimerTask mFilesCleanerTask;
-    private MyWorkerThread mWorkerThread;
+    private Timer mTakePictureTimer;
+    private Timer mFileCleanerTimer;
+    private PictureSaverTask mPictureSaverTask;
+    private PictureDirCleanerTask mPictureDirCleanerTask;
 
     public TakePictureFragment() {
     }
@@ -50,8 +42,19 @@ public class TakePictureFragment extends Fragment implements MyTimerTask.OnTimer
         // TODO: 11/04/2018  setRetainInstance ?
 //        setRetainInstance(true);
 
-        mTimer = new Timer(getClass().getSimpleName(), true);
-        mWorkerThread = new MyWorkerThread(this);
+        // Start timer to take picture
+        mTakePictureTimer = new Timer.Builder()
+                .subscriber(this)
+                .delay(getResources().getInteger(R.integer.take_picture_delay_millisec))
+                .alarmId(TAKE_PICTURE_ALARM_ID)
+                .build();
+
+        // Start timer to clean piture dir
+        mFileCleanerTimer = new Timer.Builder()
+                .subscriber(this)
+                .delay(getResources().getInteger(R.integer.file_cleaner_delay_millisec))
+                .alarmId(FILE_CLEANER_ALARM_ID)
+                .build();
     }
 
     @Nullable
@@ -64,149 +67,83 @@ public class TakePictureFragment extends Fragment implements MyTimerTask.OnTimer
 
     private void initCamera(View rootView) {
         mCameraView = rootView.findViewById(R.id.camera);
-        mCameraView.addCameraListener(new CameraListener() {
-            @Override
-            public void onCameraOpened(CameraOptions options) {
-                super.onCameraOpened(options);
-            }
-
-            @Override
-            public void onCameraClosed() {
-                super.onCameraClosed();
-            }
-
-            @Override
-            public void onCameraError(@NonNull CameraException exception) {
-                super.onCameraError(exception);
-            }
-
-            @Override
-            public void onPictureTaken(byte[] jpeg) {
-                savePicture(jpeg);
-            }
-
-            @Override
-            public void onOrientationChanged(int orientation) {
-                super.onOrientationChanged(orientation);
-            }
-        });
-
     }
 
-    private void startTimers() {
-        stopTimers();
-        mTakePictureTask = new MyTimerTask(this, PIC_TASK_ID);
-        mFilesCleanerTask = new MyTimerTask(this, CLEAN_TASK_ID);
-        mTimer.schedule(mTakePictureTask, PIC_INTERVAL, PIC_INTERVAL);
-        mTimer.schedule(mFilesCleanerTask, CLEAN_INTERVAL, CLEAN_INTERVAL);
+    public void startCamera() {
+        Timber.d("Camera: starting.");
+        try {
+            mCameraView.start();
+        } catch (final Exception exc) {
+            Timber.e(exc, "Error while starting capture image.");
+        }
     }
 
-    private void stopTimers() {
-        if (mTakePictureTask != null) {
-            mTakePictureTask.cancel();
+    public void stopCamera() {
+        Timber.d("Camera: stopping.");
+        try {
+            mCameraView.stop();
+        } catch (final Exception exc) {
+            Timber.e(exc, "Error while stopping camera.");
         }
-        if (mFilesCleanerTask != null) {
-            mFilesCleanerTask.cancel();
-        }
+        super.onPause();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        mCameraView.start();
-        startTimers();
+        startCamera();
+        mTakePictureTimer.start();
+        mFileCleanerTimer.start();
     }
 
     @Override
     public void onPause() {
+        mTakePictureTimer.stop();
+        mFileCleanerTimer.stop();
+        stopCamera();
         super.onPause();
-        mCameraView.stop();
-        stopTimers();
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mTimer.cancel();
-        mCameraView.destroy();
-        mWorkerThread.quitSafely();
-    }
-
-    /**
-     * CamerView implements checkPermissions in his with() method so jus need manage onRequestPermissionsResult
-     *
-     * @param requestCode
-     * @param permissions
-     * @param grantResults
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        boolean valid = true;
-        for (int grantResult : grantResults) {
-            valid = valid && grantResult == PackageManager.PERMISSION_GRANTED;
-        }
-        if (valid && !mCameraView.isStarted()) {
-            mCameraView.start();
-        }
-    }
-
-    private void savePicture(byte[] jpeg) {
-        mWorkerThread.enqueue(jpeg, MyWorkerThread.SAVE_PICTURE_JOB);
-    }
-
-    @Override
-    public void onTimeout(int taskId) {
-        switch (taskId) {
-            case PIC_TASK_ID:
+    public void onSchedule(int alarmId) {
+        switch (alarmId) {
+            case TAKE_PICTURE_ALARM_ID:
                 capturePicture();
                 break;
-            case CLEAN_TASK_ID:
+            case FILE_CLEANER_ALARM_ID:
                 cleanPictureDir();
                 break;
             default:
-                Timber.e("Unknown alarm ID: %d", taskId);
+                Timber.e("Unknown alarm ID: %d", alarmId);
         }
     }
 
     public void capturePicture() {
-        Timber.d("Capture picture request");
-        mCameraView.capturePicture(); //result received in onPictureTaken
+        if(mPictureSaverTask != null && mPictureSaverTask.getStatus() == AsyncTask.Status.RUNNING) {
+            return;
+        }
+        mCameraView.captureImage(new CameraKitEventCallback<CameraKitImage>() {
+            @Override
+            public void callback(CameraKitImage image) {
+                byte[] jpeg = image.getJpeg();
+                savePicture(jpeg);
+            }
+        });
+    }
+
+    private void savePicture(byte[] jpeg){
+        Timber.d("Save picture request");
+        mPictureSaverTask = new PictureSaverTask();
+        mPictureSaverTask.execute(new ImageBox(jpeg));
     }
 
     private void cleanPictureDir() {
         Timber.d("Clean picture dir request");
-        mWorkerThread.enqueue(null, MyWorkerThread.CLEAN_PIC_DIR_JOB);
-    }
-
-    @Override
-    public void onSaved(final File file, int jobId) {
-        switch (jobId) {
-            case MyWorkerThread.SAVE_PICTURE_JOB: {
-                Timber.d("Full size picture saved: %s", file);
-                // Reload picture, caches it, resize and save in gray scale. This must happens in main-Thread!
-                ImageUtils.transformPicture(file, new ImageUtils.OnImageReady() {
-                    @Override
-                    public void setBitmap(Bitmap bitmap) {
-                        ImageBox imageBox = new ImageBox(bitmap, file);
-                        mWorkerThread.enqueue(imageBox, MyWorkerThread.SAVE_TRANSF_PICTURE_JOB);
-                    }
-                });
-                break;
-            }
-            case MyWorkerThread.SAVE_TRANSF_PICTURE_JOB: {
-                Timber.d("Picture transformed: %s", file);
-                break;
-            }
-            default:
-                Timber.e("Unknown job id: %d", jobId);
+        if(mPictureDirCleanerTask != null) {
+            mPictureDirCleanerTask.stop();
         }
-
-    }
-
-    @Override
-    public void onCleaned(File[] files, int jobId) {
-        // Do nothing
+        mPictureDirCleanerTask = new PictureDirCleanerTask();
+        mPictureDirCleanerTask.execute();
     }
 
 }

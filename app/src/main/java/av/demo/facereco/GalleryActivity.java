@@ -13,6 +13,7 @@ import android.widget.Toast;
 import org.greenrobot.eventbus.EventBus;
 
 import av.demo.facereco.adapters.GalleryPagerAdapter;
+import av.demo.facereco.detect.DetectAsyncTask;
 import av.demo.facereco.dialogs.ErrorDialog;
 import av.demo.facereco.dialogs.RationaleDialog;
 import av.demo.facereco.event.MenuTapEvent;
@@ -28,6 +29,10 @@ public class GalleryActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gallery);
+
+        // Face detection initialization
+        DetectAsyncTask.initialize(this);
+
         initComponent();
         checkPermissions();
     }
@@ -68,6 +73,8 @@ public class GalleryActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
+        // Release face detector
+        DetectAsyncTask.releaseDetector();
         super.onDestroy();
     }
 
